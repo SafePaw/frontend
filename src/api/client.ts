@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { tokenStorage } from '../utils/tokenStorage'
 
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
 let _accessToken: string | null = null
 let _onAuthFailed: (() => void) | null = null
@@ -40,7 +40,7 @@ async function executeRefresh(): Promise<boolean> {
   }
 
   try {
-    const res = await axios.post(`${BASE_URL}/api/v1/auth/refresh`, {
+    const res = await axios.post(`${BASE_URL}/auth/refresh`, {
       refreshToken: storedToken,
     })
     const data = res.data?.data as { accessToken?: string; refreshToken?: string } | undefined
