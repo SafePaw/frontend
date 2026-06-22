@@ -6,6 +6,8 @@ import LoginPage from './pages/auth/loginPage'
 import OAuthCallbackPage from './pages/auth/oAuthCallbackPage'
 import ProtectedRoute from './routes/protectedRoute'
 import { useAuthStore } from './stores/authStore'
+import DogRegisterPage from './pages/onboarding/dogRegisterPage'
+import TerritoryColorPage from './pages/onboarding/territoryColorPage'
 
 export default function App() {
   const initializeAuth = useAuthStore((state) => state.initializeAuth)
@@ -21,7 +23,10 @@ export default function App() {
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />
         <Route path={ROUTES.OAUTH_CALLBACK} element={<OAuthCallbackPage />} />
 
-        <Route element={<ProtectedRoute />}></Route>
+        <Route element={<ProtectedRoute />}>
+          <Route path={ROUTES.ONBOARDING.DOG} element={<DogRegisterPage />} />
+          <Route path={ROUTES.ONBOARDING.COLOR} element={<TerritoryColorPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   )
