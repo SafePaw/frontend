@@ -22,7 +22,6 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate()
   const { provider } = useParams<{ provider: string }>()
   const setAuth = useAuthStore((state) => state.setAuth)
-  // Prevents double invocation in React StrictMode dev builds
   const calledRef = useRef(false)
 
   useEffect(() => {
@@ -80,7 +79,11 @@ export default function OAuthCallbackPage() {
             { accessToken: res.data.accessToken, refreshToken: res.data.refreshToken },
             res.data.user,
           )
-          navigate(ROUTES.SPLASH, { replace: true })
+          if (res.data.user.dogSetupRequired) {
+            navigate(ROUTES.ONBOARDING.DOG, { replace: true })
+          } else {
+            navigate(ROUTES.SPLASH, { replace: true })
+          }
         } else {
           console.error('[SafePaw] OAuth callback: backend returned error', res.error)
           navigate(ROUTES.LOGIN, { replace: true })
