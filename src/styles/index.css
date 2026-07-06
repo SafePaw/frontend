@@ -19,6 +19,7 @@
 
   body {
     font-family: 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', sans-serif;
+    font-weight: 300;
     background-color: #f2e6b1;
     color: #2a3244;
     -webkit-font-smoothing: antialiased;

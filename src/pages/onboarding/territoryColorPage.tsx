@@ -39,7 +39,7 @@ export default function TerritoryColorPage() {
       const dog = await createDog(body)
       setCreatedDog(dog)
       resetDraft()
-      navigate(ROUTES.SPLASH, { replace: true })
+      navigate(ROUTES.ONBOARDING.TUTORIAL, { replace: true })
     } catch {
       setError('강아지 등록에 실패했어요. 다시 시도해 주세요.')
     } finally {

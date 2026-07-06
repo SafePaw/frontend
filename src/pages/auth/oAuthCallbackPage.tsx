@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { socialLogin } from '../../api/auth'
 import { useAuthStore } from '../../stores/authStore'
 import { ROUTES } from '../../constants/routes'
+import { GUIDE_SEEN_KEYS } from '../../constants/guideSeenKeys'
 import { validateOAuthState } from '../../utils/oauthState'
 import type { OAuthProvider, AuthProvider } from '../../types/auth'
 
@@ -82,7 +83,12 @@ export default function OAuthCallbackPage() {
           if (res.data.user.dogSetupRequired) {
             navigate(ROUTES.ONBOARDING.DOG, { replace: true })
           } else {
-            navigate(ROUTES.SPLASH, { replace: true })
+            const serviceIntroSeen =
+              localStorage.getItem(GUIDE_SEEN_KEYS.serviceIntro) === 'true'
+            navigate(
+              serviceIntroSeen ? ROUTES.HOME : ROUTES.ONBOARDING.TUTORIAL,
+              { replace: true },
+            )
           }
         } else {
           console.error('[SafePaw] OAuth callback: backend returned error', res.error)
