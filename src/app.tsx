@@ -12,6 +12,10 @@ import ServiceIntroPage from './pages/onboarding/serviceIntroPage'
 import HomePage from './pages/home/homePage'
 import WalkReadyPage from './pages/walk/walkReadyPage'
 import WalkActivePage from './pages/walk/walkActivePage'
+import MyPage from './pages/my/myPage'
+import DogListPage from './pages/dogs/dogListPage'
+import DogRegistrationPage from './pages/dogs/dogRegistrationPage'
+import DogDetailPage from './pages/dogs/dogDetailPage'
 
 export default function App() {
   const initializeAuth = useAuthStore((state) => state.initializeAuth)
@@ -34,6 +38,10 @@ export default function App() {
           <Route path={ROUTES.HOME} element={<HomePage />} />
           <Route path={ROUTES.WALK.READY} element={<WalkReadyPage />} />
           <Route path={ROUTES.WALK.ACTIVE} element={<WalkActivePage />} />
+          <Route path={ROUTES.MY.INDEX} element={<MyPage />} />
+          <Route path={ROUTES.DOGS.INDEX} element={<DogListPage />} />
+          <Route path={ROUTES.DOGS.REGISTRATION} element={<DogRegistrationPage />} />
+          <Route path={ROUTES.DOGS.DETAIL} element={<DogDetailPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

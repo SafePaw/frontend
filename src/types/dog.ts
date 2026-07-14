@@ -1,5 +1,11 @@
 export type MarkerImageType = 'PRESET' | 'UPLOADED'
 export type DogGender = 'MALE' | 'FEMALE'
+export type DogRank =
+  | 'PUPPY_WALKER'
+  | 'NEIGHBORHOOD_EXPLORER'
+  | 'STREET_STROLLER'
+  | 'TERRITORY_PIONEER'
+  | 'ALPHA_DOG'
 
 export interface DogDraft {
   name: string
@@ -41,8 +47,10 @@ export interface Dog {
   age: number | null
   weightKg: number | null
   markerImageUrl: string | null
-  territoryColor: string | null
-  rank: string
+  markerImageType: MarkerImageType | null
+  markerImageValue: string | null
+  territoryColor: string
+  rank: DogRank
   totalXp: number
 }
 
