@@ -32,5 +32,12 @@ export const ROUTES = {
     SETTINGS: '/my/settings',
   },
 
+  DOGS: {
+    INDEX: '/dogs',
+    REGISTRATION: '/dogs/registration',
+    DETAIL: '/dogs/:dogId',
+    DETAIL_OF: (dogId: number | string) => `/dogs/${dogId}`,
+  },
+
   PROFILE: '/profile',
 } as const
