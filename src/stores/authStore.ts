@@ -3,6 +3,7 @@ import { setAccessToken, setAuthFailedCallback } from '../api/client'
 import { refreshAuth } from '../api/auth'
 import { getMe } from '../api/me'
 import { tokenStorage } from '../utils/tokenStorage'
+import { activeWalkStorage } from '../utils/activeWalkStorage'
 import type { User, AuthTokens } from '../types/auth'
 
 interface AuthState {
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   clearAuth() {
     setAccessToken(null)
     tokenStorage.clearRefreshToken()
+    activeWalkStorage.clearAll()
     set({ user: null, isAuthenticated: false })
   },
 

@@ -12,6 +12,7 @@ import ServiceIntroPage from './pages/onboarding/serviceIntroPage'
 import HomePage from './pages/home/homePage'
 import WalkReadyPage from './pages/walk/walkReadyPage'
 import WalkActivePage from './pages/walk/walkActivePage'
+import WalkResultPage from './pages/walk/walkResultPage'
 import MyPage from './pages/my/myPage'
 import DogListPage from './pages/dogs/dogListPage'
 import DogRegistrationPage from './pages/dogs/dogRegistrationPage'
@@ -38,6 +39,7 @@ export default function App() {
           <Route path={ROUTES.HOME} element={<HomePage />} />
           <Route path={ROUTES.WALK.READY} element={<WalkReadyPage />} />
           <Route path={ROUTES.WALK.ACTIVE} element={<WalkActivePage />} />
+          <Route path={ROUTES.WALK.RESULT} element={<WalkResultPage />} />
           <Route path={ROUTES.MY.INDEX} element={<MyPage />} />
           <Route path={ROUTES.DOGS.INDEX} element={<DogListPage />} />
           <Route path={ROUTES.DOGS.REGISTRATION} element={<DogRegistrationPage />} />
