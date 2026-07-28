@@ -3,12 +3,21 @@ import { getWalkLive } from '../api/walks'
 import { useWalkStore } from '../stores/walkStore'
 import { WALK_GPS_CONFIG } from '../constants/walk'
 
-export function useWalkLivePolling(walkId: number | null) {
+interface UseWalkLivePollingOptions {
+  onWalkNotFound?: () => void
+}
+
+export function useWalkLivePolling(
+  walkId: number | null,
+  { onWalkNotFound }: UseWalkLivePollingOptions = {},
+) {
   const setLiveStats = useWalkStore((s) => s.setLiveStats)
   const setError = useWalkStore((s) => s.setError)
 
   const inFlightRef = useRef(false)
   const failCountRef = useRef(0)
+  const onWalkNotFoundRef = useRef(onWalkNotFound)
+  onWalkNotFoundRef.current = onWalkNotFound
 
   useEffect(() => {
     if (!walkId) return
@@ -21,7 +30,12 @@ export function useWalkLivePolling(walkId: number | null) {
         setLiveStats(stats)
         failCountRef.current = 0
         setError(null)
-      } catch {
+      } catch (err) {
+        const status = (err as { response?: { status?: number } }).response?.status
+        if (status === 404) {
+          onWalkNotFoundRef.current?.()
+          return
+        }
         failCountRef.current += 1
         if (failCountRef.current >= WALK_GPS_CONFIG.livePollingFailThreshold) {
           setError({ code: 'LIVE_POLL_FAIL', message: '실시간 통계를 불러오지 못하고 있습니다.' })

@@ -16,6 +16,7 @@ import { WALK_GPS_CONFIG } from '../../constants/walk'
 import type { Dog } from '../../types/dog'
 
 type PageState = 'loading' | 'ready' | 'gps-check' | 'starting' | 'error'
+type LocationErrorType = 'permission' | 'unavailable' | 'timeout' | 'low-accuracy' | 'other'
 
 export default function WalkReadyPage() {
   const navigate = useNavigate()
@@ -24,15 +25,18 @@ export default function WalkReadyPage() {
   const { hasSeen, markSeen } = useGuideFlow('preWalk')
 
   const startingRef = useRef(false)
+  const checkingLocationRef = useRef(false)
+  const locationErrorTypeRef = useRef<LocationErrorType | null>(null)
+  const handleCheckLocationRef = useRef<() => void>(() => {})
 
   const [isGuideOpen, setIsGuideOpen] = useState(!hasSeen)
   const [pageState, setPageState] = useState<PageState>('loading')
   const [dogs, setDogs] = useState<Dog[]>([])
   const [selectedDogId, setSelectedDogId] = useState<number | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [locationErrorType, setLocationErrorType] = useState<LocationErrorType | null>(null)
   const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null)
 
-  // 강아지 목록
   useEffect(() => {
     getDogs()
       .then((list) => {
@@ -51,64 +55,132 @@ export default function WalkReadyPage() {
     setIsGuideOpen(false)
   }
 
+  function classifyLocationError(code: string | undefined): LocationErrorType {
+    switch (code) {
+      case 'PERMISSION_DENIED':
+        return 'permission'
+      case 'POSITION_UNAVAILABLE':
+        return 'unavailable'
+      case 'TIMEOUT':
+        return 'timeout'
+      case 'LOW_ACCURACY':
+        return 'low-accuracy'
+      default:
+        return 'other'
+    }
+  }
+
+  async function handleCheckLocation() {
+    if (checkingLocationRef.current || startingRef.current) return
+    checkingLocationRef.current = true
+
+    setErrorMessage(null)
+    setLocationErrorType(null)
+    locationErrorTypeRef.current = null
+    setGpsAccuracy(null)
+    setPageState('gps-check')
+
+    try {
+      const point = await getInitialPosition(
+        WALK_GPS_CONFIG.initialAccuracyThresholdMeters,
+        WALK_GPS_CONFIG.initialFixTimeoutMs,
+      )
+      setGpsAccuracy(point.accuracyMeters)
+      setPageState('ready')
+    } catch (err) {
+      const code = (err as { code?: string }).code
+      const type = classifyLocationError(code)
+      setLocationErrorType(type)
+      locationErrorTypeRef.current = type
+      setErrorMessage(err instanceof Error ? err.message : 'GPS 신호를 확인할 수 없습니다.')
+      setPageState('ready')
+    } finally {
+      checkingLocationRef.current = false
+    }
+  }
+
+  handleCheckLocationRef.current = handleCheckLocation
+
+  useEffect(() => {
+    function onVisibilityChange() {
+      if (
+        document.visibilityState === 'visible' &&
+        locationErrorTypeRef.current !== null &&
+        !checkingLocationRef.current &&
+        !startingRef.current
+      ) {
+        handleCheckLocationRef.current()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [])
+
   async function handleStartWalk() {
     if (startingRef.current || !selectedDogId || !user) return
     startingRef.current = true
     setErrorMessage(null)
+    setLocationErrorType(null)
+    locationErrorTypeRef.current = null
     setGpsAccuracy(null)
 
-    // 1. GPS 권한 확인 + 최초 좌표
-    setPageState('gps-check')
-    let initialPoint
     try {
-      initialPoint = await getInitialPosition(
-        WALK_GPS_CONFIG.initialAccuracyThresholdMeters,
-        WALK_GPS_CONFIG.initialFixTimeoutMs,
-      )
-      setGpsAccuracy(initialPoint.accuracyMeters)
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : 'GPS 신호를 확인할 수 없습니다.')
-      setPageState('ready')
-      return
-    }
-
-    // 2. start API 호출
-    setPageState('starting')
-    try {
-      const res = await startWalk(selectedDogId)
-      const walkId = res.walkSessionId
-
-      // 3. localStorage + store 저장
-      activeWalkStorage.set(user.id, {
-        walkId,
-        dogId: selectedDogId,
-        startedAt: res.startedAt,
-        lastKnownStatus: 'ONGOING',
-      })
-      setWalkSession(walkId, selectedDogId, res.startedAt, 'ONGOING')
-      setInitialPoint([initialPoint.lng, initialPoint.lat])
-
-      // 4. walkActivePage로 이동
-      navigate(ROUTES.WALK.ACTIVE, { replace: true })
-    } catch (err) {
-      const code = extractErrorCode(err)
-      if (code === 'WALK_ONGOING_EXISTS') {
-        // localStorage에 기존 walkId가 있으면 복귀 시도
-        const stored = activeWalkStorage.get(user.id)
-        if (stored) {
-          setWalkSession(stored.walkId, stored.dogId, stored.startedAt, stored.lastKnownStatus)
-          navigate(ROUTES.WALK.ACTIVE, { replace: true })
-          return
-        }
-        setErrorMessage(
-          '진행 중인 산책이 있지만 정보를 불러오지 못했습니다.\n현재는 새로운 산책을 시작할 수 없습니다.',
+      // 1. GPS 권한 확인 + 최초 좌표
+      setPageState('gps-check')
+      let initialPoint
+      try {
+        initialPoint = await getInitialPosition(
+          WALK_GPS_CONFIG.initialAccuracyThresholdMeters,
+          WALK_GPS_CONFIG.initialFixTimeoutMs,
         )
-      } else {
-        setErrorMessage(
-          err instanceof Error ? err.message : '산책 시작에 실패했습니다. 다시 시도해 주세요.',
-        )
+        setGpsAccuracy(initialPoint.accuracyMeters)
+      } catch (err) {
+        const code = (err as { code?: string }).code
+        const type = classifyLocationError(code)
+        setLocationErrorType(type)
+        locationErrorTypeRef.current = type
+        setErrorMessage(err instanceof Error ? err.message : 'GPS 신호를 확인할 수 없습니다.')
+        setPageState('ready')
+        return
       }
-      setPageState('ready')
+
+      // 2. start API 호출
+      setPageState('starting')
+      try {
+        const res = await startWalk(selectedDogId)
+        const walkId = res.walkSessionId
+
+        // 3. localStorage + store 저장
+        activeWalkStorage.set(user.id, {
+          walkId,
+          dogId: selectedDogId,
+          startedAt: res.startedAt,
+          lastKnownStatus: 'ONGOING',
+        })
+        setWalkSession(walkId, selectedDogId, res.startedAt, 'ONGOING')
+        setInitialPoint([initialPoint.lng, initialPoint.lat])
+
+        // 4. walkActivePage로 이동
+        navigate(ROUTES.WALK.ACTIVE, { replace: true })
+      } catch (err) {
+        const code = extractErrorCode(err)
+        if (code === 'WALK_ONGOING_EXISTS') {
+          const stored = activeWalkStorage.get(user.id)
+          if (stored) {
+            setWalkSession(stored.walkId, stored.dogId, stored.startedAt, stored.lastKnownStatus)
+            navigate(ROUTES.WALK.ACTIVE, { replace: true })
+            return
+          }
+          setErrorMessage(
+            '진행 중인 산책이 있지만 정보를 불러오지 못했습니다.\n현재는 새로운 산책을 시작할 수 없습니다.',
+          )
+        } else {
+          setErrorMessage(
+            err instanceof Error ? err.message : '산책 시작에 실패했습니다. 다시 시도해 주세요.',
+          )
+        }
+        setPageState('ready')
+      }
     } finally {
       startingRef.current = false
     }
@@ -190,11 +262,35 @@ export default function WalkReadyPage() {
         {pageState === 'starting' && (
           <p className="text-f14 text-navy-40 text-center py-2">산책을 시작하는 중...</p>
         )}
-        {gpsAccuracy !== null && pageState === 'ready' && (
+        {gpsAccuracy !== null && !errorMessage && pageState === 'ready' && (
           <p className="text-f12 text-ok text-center">GPS 정확도: 약 {Math.round(gpsAccuracy)}m</p>
         )}
 
-        {errorMessage && (
+        {errorMessage && locationErrorType !== null && (
+          <div
+            className={[
+              'px-4 py-3 rounded-lg border',
+              locationErrorType === 'low-accuracy'
+                ? 'bg-navy-8 border-navy-15'
+                : 'bg-err/10 border-err/20',
+            ].join(' ')}
+          >
+            <p
+              className={`text-f14 ${locationErrorType === 'low-accuracy' ? 'text-navy-40' : 'text-err'}`}
+            >
+              {errorMessage}
+            </p>
+            <button
+              onClick={handleCheckLocation}
+              disabled={isBusy}
+              className="mt-2 text-f13 text-navy underline disabled:opacity-40"
+            >
+              다시 확인
+            </button>
+          </div>
+        )}
+
+        {errorMessage && locationErrorType === null && (
           <div className="px-4 py-3 rounded-lg bg-err/10 border border-err/20">
             {errorMessage.includes('\n') ? (
               <>

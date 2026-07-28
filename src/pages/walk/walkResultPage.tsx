@@ -3,7 +3,7 @@ import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import WalkMap from '../../components/walk/walkMap'
 import { getWalkDetail } from '../../api/walks'
 import { ROUTES } from '../../constants/routes'
-import type { WalkFinishResponse, WalkDetailResponse } from '../../types/walk'
+import type { WalkFinishResponse, WalkDetailResponse, WalkStats } from '../../types/walk'
 
 function formatDistance(m: number): string {
   return m < 1000 ? `${Math.round(m)}m` : `${(m / 1000).toFixed(2)}km`
@@ -16,6 +16,10 @@ function formatDuration(seconds: number): string {
   if (h > 0) return `${h}시간 ${m}분`
   if (m > 0) return `${m}분 ${s}초`
   return `${s}초`
+}
+
+function getHttpStatus(err: unknown): number | null {
+  return (err as { response?: { status?: number } }).response?.status ?? null
 }
 
 interface LocationState {
@@ -31,41 +35,70 @@ export default function WalkResultPage() {
   const finishResult = state?.finishResult
 
   const [detail, setDetail] = useState<WalkDetailResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(!finishResult)
+  const [isMapLoading, setIsMapLoading] = useState(!!walkId)
   const [fetchError, setFetchError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (finishResult || !walkId) return
-    setIsLoading(true)
-    getWalkDetail(Number(walkId))
-      .then(setDetail)
-      .catch(() => setFetchError('산책 기록을 불러오지 못했습니다.'))
-      .finally(() => setIsLoading(false))
-  }, [walkId, finishResult])
+  function handleDetailError(err: unknown) {
+    const status = getHttpStatus(err)
+    if (status === 404) {
+      setFetchError('존재하지 않는 산책 기록입니다.')
+    } else if (status === 403) {
+      setFetchError('접근 권한이 없습니다.')
+    } else {
+      setFetchError('산책 기록을 불러오지 못했습니다. 다시 시도해 주세요.')
+    }
+  }
 
-  const stats = finishResult?.stats ?? detail?.stats ?? null
+  useEffect(() => {
+    if (!walkId) return
+
+    let cancelled = false
+    setIsMapLoading(true)
+    setFetchError(null)
+
+    const fetchDetail = async () => {
+      try {
+        const data = await getWalkDetail(Number(walkId))
+        if (!cancelled) setDetail(data)
+      } catch (err) {
+        if (cancelled) return
+        if (finishResult && getHttpStatus(err) === 404) {
+          await new Promise<void>((r) => setTimeout(r, 800))
+          if (cancelled) return
+          try {
+            const data = await getWalkDetail(Number(walkId))
+            if (!cancelled) setDetail(data)
+          } catch (retryErr) {
+            if (!cancelled) handleDetailError(retryErr)
+          }
+        } else {
+          handleDetailError(err)
+        }
+      } finally {
+        if (!cancelled) setIsMapLoading(false)
+      }
+    }
+
+    fetchDetail()
+    return () => {
+      cancelled = true
+    }
+  }, [walkId])
+
+  const stats: WalkStats | null = (() => {
+    if (!detail?.stats && !finishResult?.stats) return null
+    return Object.assign({}, detail?.stats, finishResult?.stats) as WalkStats
+  })()
+
   const polylineCoords = detail?.polyline?.coordinates ?? null
   const territory = finishResult?.territory ?? null
-  const dogTerritoryColor = undefined
 
-  if (isLoading) {
+  const isPageLoading = !finishResult && isMapLoading
+
+  if (isPageLoading) {
     return (
       <div className="flex h-full items-center justify-center bg-cream">
         <div className="w-10 h-10 rounded-full border-4 border-navy-15 border-t-navy animate-spin" />
-      </div>
-    )
-  }
-
-  if (fetchError) {
-    return (
-      <div className="flex flex-col h-full items-center justify-center bg-cream px-6 gap-4">
-        <p className="text-f16 text-navy-40 text-center">{fetchError}</p>
-        <button
-          onClick={() => navigate(ROUTES.HOME, { replace: true })}
-          className="text-f14 text-navy underline"
-        >
-          홈으로 돌아가기
-        </button>
       </div>
     )
   }
@@ -77,18 +110,24 @@ export default function WalkResultPage() {
       </div>
 
       {/* 완료 경로 표시 */}
-      {polylineCoords && polylineCoords.length > 0 && (
-        <div className="mx-4 h-52 rounded-xl overflow-hidden mb-4">
+      <div className="mx-4 h-52 rounded-xl overflow-hidden mb-4 bg-navy-8 flex items-center justify-center">
+        {isMapLoading ? (
+          <div className="w-8 h-8 rounded-full border-2 border-navy-15 border-t-navy animate-spin" />
+        ) : fetchError ? (
+          <p className="text-f13 text-navy-40 text-center px-4">{fetchError}</p>
+        ) : polylineCoords && polylineCoords.length > 0 ? (
           <WalkMap
             currentPosition={null}
             routeCoords={[]}
             isPaused={false}
             completedCoords={polylineCoords}
             territoryPolygon={territory?.polygon}
-            territoryColor={dogTerritoryColor}
+            territoryColor={undefined}
           />
-        </div>
-      )}
+        ) : (
+          <p className="text-f13 text-navy-40">경로 데이터가 없습니다.</p>
+        )}
+      </div>
 
       <div className="flex-1 overflow-y-auto px-6 pb-12 space-y-4">
         {/* 통계 */}
@@ -98,9 +137,10 @@ export default function WalkResultPage() {
             <StatItem label="거리" value={stats ? formatDistance(stats.distanceMeters) : '—'} />
             <StatItem label="시간" value={stats ? formatDuration(stats.durationSeconds) : '—'} />
             <StatItem label="좌표 수" value={stats ? `${stats.pointCount}개` : '—'} />
-            {finishResult && stats && (
-              <StatItem label="평균 속도" value={`${stats.averageSpeedKmh.toFixed(1)}km/h`} />
-            )}
+            <StatItem
+              label="평균 속도"
+              value={stats?.averageSpeedKmh ? `${stats.averageSpeedKmh.toFixed(1)}km/h` : '—'}
+            />
           </div>
         </div>
 

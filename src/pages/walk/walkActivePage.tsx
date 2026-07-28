@@ -36,6 +36,7 @@ export default function WalkActivePage() {
     setServerStatus,
     setPendingAction,
     setError,
+    clearWalkSession,
   } = useWalkStore()
 
   const [recoveryState, setRecoveryState] = useState<RecoveryState>('pending')
@@ -47,6 +48,7 @@ export default function WalkActivePage() {
   const [currentPosition, setCurrentPosition] = useState<[number, number] | null>(initialPoint)
   const startPointRef = useRef<[number, number] | undefined>(initialPoint ?? undefined)
   const addPointRef = useRef<((point: WalkPointDto) => void) | null>(null)
+  const localStorageRecoveredRef = useRef(false)
 
   const isPaused = serverStatus === 'PAUSED'
   const isActive = serverStatus === 'ONGOING'
@@ -86,7 +88,24 @@ export default function WalkActivePage() {
         setWalkSession(walk.walkId, walk.dogId, walk.startedAt, walk.status)
         setRecoveryState('recovered')
       })
-      .catch(() => setRecoveryState('failed'))
+      .catch(() => {
+        if (!user) {
+          setRecoveryState('failed')
+          return
+        }
+        const stored = activeWalkStorage.get(user.id)
+        if (!stored) {
+          setRecoveryState('failed')
+          return
+        }
+        localStorageRecoveredRef.current = true
+        setWalkSession(stored.walkId, stored.dogId, stored.startedAt, stored.lastKnownStatus)
+        setError({
+          code: 'STORAGE_RECOVERY',
+          message: '서버 연결이 원활하지 않아 마지막 산책 정보를 불러왔습니다.',
+        })
+        setRecoveryState('recovered')
+      })
   }, [])
 
   const handleNewPoint = useCallback((point: WalkPointDto) => {
@@ -109,7 +128,15 @@ export default function WalkActivePage() {
 
   addPointRef.current = addPoint
 
-  useWalkLivePolling(walkId)
+  const handleWalkNotFound = useCallback(() => {
+    if (!localStorageRecoveredRef.current) return
+    localStorageRecoveredRef.current = false
+    if (user) activeWalkStorage.clear(user.id)
+    clearWalkSession()
+    setRecoveryState('failed')
+  }, [user, clearWalkSession])
+
+  useWalkLivePolling(walkId, { onWalkNotFound: handleWalkNotFound })
 
   useEffect(() => {
     if (recoveryState !== 'recovered') return
@@ -123,11 +150,9 @@ export default function WalkActivePage() {
     if (!walkId || pendingAction) return
     setPendingAction('pause')
 
-    // 1. 새 좌표 추가 차단
     stopTracking()
     await flush()
 
-    // 2. 중단
     try {
       await pauseWalk(walkId)
       setServerStatus('PAUSED')
@@ -181,7 +206,8 @@ export default function WalkActivePage() {
     )
   }
 
-  const errorMsg = error?.code === 'LIVE_POLL_FAIL' ? error.message : null
+  const errorMsg =
+    error?.code === 'LIVE_POLL_FAIL' || error?.code === 'STORAGE_RECOVERY' ? error.message : null
   const gpsErrorMsg = geoError
   const displayError =
     gpsErrorMsg ?? (queueWarning ? 'GPS 데이터 저장이 지연되고 있습니다.' : errorMsg)
