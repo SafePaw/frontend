@@ -15,7 +15,7 @@ interface WalkEndModalProps {
   startTracking: () => void
 }
 
-type ModalStep = 'confirm' | 'finishing' | 'error-too-short' | 'error-other'
+type ModalStep = 'confirm' | 'abort-confirm' | 'finishing' | 'error-too-short' | 'error-other'
 
 export default function WalkEndModal({
   onClose,
@@ -36,11 +36,9 @@ export default function WalkEndModal({
   async function handleFinish() {
     if (!walkId || busy) return
 
-    // 1. 새 좌표 수집 차단 + watcher 중지
     stopTracking()
     setPendingAction('finish')
 
-    // 2. 현재 큐 스냅샷을 lastPoints로 사용
     const lastPoints = getPendingSnapshot()
     const idempotencyKey = crypto.randomUUID()
 
@@ -51,7 +49,6 @@ export default function WalkEndModal({
         idempotencyKey,
       )
 
-      // 3. 산책 종료 성공: 큐 + localStorage 정리
       clearQueue()
       if (user) activeWalkStorage.clear(user.id)
       clearWalkSession()
@@ -74,7 +71,6 @@ export default function WalkEndModal({
         if (serverStatus === 'ONGOING') {
           startTracking()
         }
-        // PAUSED 상태에서 산책 종료 실패 시 PAUSED 유지
       }
     }
   }
@@ -104,7 +100,7 @@ export default function WalkEndModal({
     onClose()
   }
 
-  // ── 산책 확인 ──
+  // ── 산책 종료 확인 ──
   if (step === 'confirm') {
     return (
       <ModalBackdrop onClose={onClose}>
@@ -115,27 +111,49 @@ export default function WalkEndModal({
             onClick={handleFinish}
             disabled={busy}
             aria-label="산책 종료하기"
-            className="w-full py-4 rounded-sm bg-navy text-white text-f16 font-medium disabled:opacity-40 active:opacity-70 transition-opacity"
+            className="w-full py-4 rounded-pill bg-navy text-white text-f16 font-medium disabled:opacity-40 active:opacity-70 transition-opacity"
           >
             {pendingAction === 'finish' ? '종료 중...' : '종료하기'}
           </button>
           <button
-            onClick={() => {
-              if (!busy) {
-                const confirmed = window.confirm(
-                  '산책을 중단하면 기록이 저장되지 않습니다. 정말 중단할까요?',
-                )
-                if (confirmed) handleAbort()
-              }
-            }}
+            onClick={() => { if (!busy) setStep('abort-confirm') }}
             disabled={busy}
             aria-label="산책 중단하기 (기록 저장 안 됨)"
-            className="w-full py-3 rounded-sm bg-navy-8 text-navy-40 text-f14 font-medium disabled:opacity-40 active:opacity-70 transition-opacity"
+            className="w-full py-3 rounded-pill bg-navy-8 text-navy-40 text-f14 font-medium disabled:opacity-40 active:opacity-70 transition-opacity"
           >
-            {pendingAction === 'abort' ? '중단 중...' : '기록 없이 중단하기'}
+            기록 없이 중단하기
           </button>
           <button onClick={onClose} disabled={busy} className="w-full py-3 text-f14 text-navy-40">
             계속 산책하기
+          </button>
+        </div>
+      </ModalBackdrop>
+    )
+  }
+
+  // ── 중단 확인 ──
+  if (step === 'abort-confirm') {
+    return (
+      <ModalBackdrop onClose={handleContinueWalking}>
+        <h2 className="text-f18 font-semibold text-navy mb-1">산책을 중단할까요?</h2>
+        <p className="text-f14 text-navy-40 mb-6">
+          중단하면 현재까지의 기록이 저장되지 않습니다.
+        </p>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={handleAbort}
+            disabled={pendingAction === 'abort'}
+            aria-label="산책 중단 확인"
+            className="w-full py-4 rounded-pill bg-err text-white text-f16 font-medium disabled:opacity-40 active:opacity-70 transition-opacity"
+          >
+            {pendingAction === 'abort' ? '중단 중...' : '중단하기'}
+          </button>
+          <button
+            onClick={() => setStep('confirm')}
+            disabled={pendingAction === 'abort'}
+            className="w-full py-3 rounded-pill bg-navy-8 text-navy-40 text-f14 font-medium disabled:opacity-40 active:opacity-70 transition-opacity"
+          >
+            돌아가기
           </button>
         </div>
       </ModalBackdrop>
@@ -155,19 +173,16 @@ export default function WalkEndModal({
         <div className="flex flex-col gap-3">
           <button
             onClick={handleContinueWalking}
-            className="w-full py-4 rounded-sm bg-navy text-white text-f16 font-medium active:opacity-70"
+            className="w-full py-4 rounded-pill bg-navy text-white text-f16 font-medium active:opacity-70"
           >
             조금 더 산책하기
           </button>
           <button
-            onClick={() => {
-              const confirmed = window.confirm('산책을 포기하면 기록이 저장되지 않습니다.')
-              if (confirmed) handleAbort()
-            }}
+            onClick={() => setStep('abort-confirm')}
             disabled={pendingAction === 'abort'}
-            className="w-full py-3 rounded-sm bg-navy-8 text-navy-40 text-f14 font-medium disabled:opacity-40 active:opacity-70"
+            className="w-full py-3 rounded-pill bg-navy-8 text-navy-40 text-f14 font-medium disabled:opacity-40 active:opacity-70"
           >
-            {pendingAction === 'abort' ? '중단 중...' : '산책 포기하기'}
+            산책 포기하기
           </button>
         </div>
       </ModalBackdrop>
@@ -182,7 +197,7 @@ export default function WalkEndModal({
       <div className="flex flex-col gap-3">
         <button
           onClick={() => setStep('confirm')}
-          className="w-full py-4 rounded-sm bg-navy text-white text-f16 font-medium active:opacity-70"
+          className="w-full py-4 rounded-pill bg-navy text-white text-f16 font-medium active:opacity-70"
         >
           다시 시도
         </button>

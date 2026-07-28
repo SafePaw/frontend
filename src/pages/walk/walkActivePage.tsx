@@ -252,7 +252,7 @@ export default function WalkActivePage() {
       </div>
 
       {/* 통계 */}
-      <div className="bg-white border-t border-navy-8">
+      <div className="bg-cream border-t border-navy-8">
         <WalkStats stats={liveStats} isPaused={isPaused} />
         <div className="mx-6 h-px bg-navy-8" />
         <WalkControls

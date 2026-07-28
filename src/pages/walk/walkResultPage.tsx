@@ -18,6 +18,28 @@ function formatDuration(seconds: number): string {
   return `${s}초`
 }
 
+const XP_SOURCE_LABELS: Record<string, string> = {
+  BASE_WALK: '산책 완료',
+  WALK_COMPLETE: '산책 완료',
+  WALK_COMPLETED: '산책 완료',
+  DISTANCE: '거리 스페셜 리워드',
+  DISTANCE_BONUS: '거리 스페셜 리워드',
+  WALK_DISTANCE: '거리 스페셜 리워드',
+  TERRITORY: '영토 획득',
+  TERRITORY_CLAIM: '영토 획득',
+  TERRITORY_BONUS: '영토 스페셜 리워드',
+  LOOP: '순환 스페셜 리워드',
+  LOOP_BONUS: '순환 스페셜 리워드',
+  LEVEL_UP: '레벨업 스페셜 리워드',
+  FIRST_WALK: '첫 산책',
+  CONSECUTIVE: '연속 산책',
+  STREAK: '연속 산책',
+}
+
+function formatXpSource(source: string): string {
+  return XP_SOURCE_LABELS[source.toUpperCase()] ?? source.replace(/_/g, ' ')
+}
+
 function getHttpStatus(err: unknown): number | null {
   return (err as { response?: { status?: number } }).response?.status ?? null
 }
@@ -110,11 +132,15 @@ export default function WalkResultPage() {
       </div>
 
       {/* 완료 경로 표시 */}
-      <div className="mx-4 h-52 rounded-xl overflow-hidden mb-4 bg-navy-8 flex items-center justify-center">
+      <div className="mx-4 h-52 rounded-xl overflow-hidden mb-4">
         {isMapLoading ? (
-          <div className="w-8 h-8 rounded-full border-2 border-navy-15 border-t-navy animate-spin" />
+          <div className="h-full bg-navy-8 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full border-2 border-navy-15 border-t-navy animate-spin" />
+          </div>
         ) : fetchError ? (
-          <p className="text-f13 text-navy-40 text-center px-4">{fetchError}</p>
+          <div className="h-full bg-navy-8 flex items-center justify-center px-4">
+            <p className="text-f13 text-navy-40 text-center">{fetchError}</p>
+          </div>
         ) : polylineCoords && polylineCoords.length > 0 ? (
           <WalkMap
             currentPosition={null}
@@ -125,7 +151,9 @@ export default function WalkResultPage() {
             territoryColor={undefined}
           />
         ) : (
-          <p className="text-f13 text-navy-40">경로 데이터가 없습니다.</p>
+          <div className="h-full bg-navy-8 flex items-center justify-center">
+            <p className="text-f13 text-navy-40">경로 데이터가 없습니다.</p>
+          </div>
         )}
       </div>
 
@@ -136,10 +164,13 @@ export default function WalkResultPage() {
           <div className="grid grid-cols-2 gap-3">
             <StatItem label="거리" value={stats ? formatDistance(stats.distanceMeters) : '—'} />
             <StatItem label="시간" value={stats ? formatDuration(stats.durationSeconds) : '—'} />
-            <StatItem label="좌표 수" value={stats ? `${stats.pointCount}개` : '—'} />
             <StatItem
               label="평균 속도"
               value={stats?.averageSpeedKmh ? `${stats.averageSpeedKmh.toFixed(1)}km/h` : '—'}
+            />
+            <StatItem
+              label="칼로리"
+              value={stats?.caloriesKcal ? `${stats.caloriesKcal.toFixed(1)}kcal` : '—'}
             />
           </div>
         </div>
@@ -150,7 +181,7 @@ export default function WalkResultPage() {
             <p className="text-f12 font-medium text-navy-40">획득 보상</p>
             {finishResult.xpGained.map((xp, i) => (
               <div key={i} className="flex justify-between">
-                <span className="text-f14 text-navy-40">{xp.source}</span>
+                <span className="text-f14 text-navy-40">{formatXpSource(xp.source)}</span>
                 <span className="text-f14 text-navy font-medium">+{xp.amount} XP</span>
               </div>
             ))}
@@ -197,7 +228,7 @@ export default function WalkResultPage() {
 
         <button
           onClick={() => navigate(ROUTES.HOME, { replace: true })}
-          className="w-full py-4 rounded-sm bg-navy text-white text-f16 font-medium active:opacity-70"
+          className="w-full py-4 rounded-pill bg-navy text-white text-f16 font-medium active:opacity-70"
         >
           홈으로
         </button>

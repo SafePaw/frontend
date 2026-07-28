@@ -1,3 +1,4 @@
+import dogCaloriesImg from '../../assets/dogCalories.png'
 import type { WalkLiveStats } from '../../types/walk'
 
 function formatDistance(meters: number): string {
@@ -33,62 +34,37 @@ export default function WalkStats({ stats, isPaused }: WalkStatsProps) {
   const valueClass = isPaused ? 'text-navy-40' : 'text-navy'
 
   return (
-    <div className="px-6 pt-5 pb-4">
-      <div className="grid grid-cols-2">
-        <StatCell
-          label="거리"
-          value={stats ? formatDistance(stats.distanceMeters) : '—'}
-          labelClass={labelClass}
-          valueClass={valueClass}
-          borderRight
-        />
-        <StatCell
-          label="시간"
-          value={stats ? formatDuration(stats.durationSeconds) : '—'}
-          labelClass={labelClass}
-          valueClass={valueClass}
-        />
-        <div className="col-span-2 h-px bg-navy-8 my-1" />
-        <StatCell
-          label="평균 속도"
-          value={stats ? formatSpeed(stats.averageSpeedKmh) : '—'}
-          labelClass={labelClass}
-          valueClass={valueClass}
-          borderRight
-        />
-        <StatCell
-          label="칼로리"
-          value={stats ? formatCalories(stats.caloriesKcal) : '—'}
-          labelClass={labelClass}
-          valueClass={valueClass}
-        />
+    <div className="flex px-4 pt-5 pb-4">
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className={`text-f11 ${labelClass}`}>거리</span>
+        <span className={`text-f18 font-light ${valueClass} tabular-nums`}>
+          {stats ? formatDistance(stats.distanceMeters) : '—'}
+        </span>
       </div>
-    </div>
-  )
-}
-
-function StatCell({
-  label,
-  value,
-  labelClass,
-  valueClass,
-  borderRight,
-}: {
-  label: string
-  value: string
-  labelClass: string
-  valueClass: string
-  borderRight?: boolean
-}) {
-  return (
-    <div
-      className={[
-        'flex flex-col items-center gap-1 py-2',
-        borderRight ? 'border-r border-navy-8' : '',
-      ].join(' ')}
-    >
-      <span className={`text-f12 ${labelClass}`}>{label}</span>
-      <span className={`text-f20 font-light ${valueClass} tabular-nums`}>{value}</span>
+      <div className="w-px bg-navy-8 self-stretch" />
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className={`text-f11 ${labelClass}`}>시간</span>
+        <span className={`text-f18 font-light ${valueClass} tabular-nums`}>
+          {stats ? formatDuration(stats.durationSeconds) : '—'}
+        </span>
+      </div>
+      <div className="w-px bg-navy-8 self-stretch" />
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className={`text-f11 ${labelClass}`}>평균 속도</span>
+        <span className={`text-f18 font-light ${valueClass} tabular-nums`}>
+          {stats ? formatSpeed(stats.averageSpeedKmh) : '—'}
+        </span>
+      </div>
+      <div className="w-px bg-navy-8 self-stretch" />
+      <div className="flex-1 flex flex-col items-center gap-1">
+        <span className={`flex items-center gap-0.5 text-f11 ${labelClass}`}>
+          <img src={dogCaloriesImg} className="w-3.5 h-3.5" alt="" />
+          칼로리
+        </span>
+        <span className={`text-f18 font-light ${valueClass} tabular-nums`}>
+          {stats ? formatCalories(stats.caloriesKcal) : '—'}
+        </span>
+      </div>
     </div>
   )
 }

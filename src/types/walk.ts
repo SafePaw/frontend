@@ -53,6 +53,7 @@ export interface WalkStats {
   averageSpeedKmh: number
   pointCount: number
   loopGapMeters: number | null
+  caloriesKcal?: number
 }
 
 export interface GeoJsonPolygon {
