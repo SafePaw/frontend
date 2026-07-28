@@ -1,26 +1,172 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../ui/button'
 import { ROUTES } from '../../constants/routes'
 import { resolveMarkerImage, DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
 import type { Dog } from '../../types/dog'
+import type { ActiveWalkItem } from '../../types/walk'
+import type { ActiveWalkFetchState } from '../../pages/home/homePage'
+
+function formatStartTime(startedAt: string): string {
+  const date = new Date(startedAt)
+  const h = date.getHours()
+  const m = String(date.getMinutes()).padStart(2, '0')
+  const ampm = h >= 12 ? '오후' : '오전'
+  const h12 = h % 12 || 12
+  return `${ampm} ${h12}:${m} 시작`
+}
 
 interface HomeDogCardProps {
   dogs: Dog[]
   selectedDogId: number | null
   onSelectDog: (dogId: number) => void
-  hasActiveWalk: boolean
+  activeWalk: ActiveWalkItem | null
+  activeWalkFetchState: ActiveWalkFetchState
+  onRetryActiveWalk: () => void
+  onFinishWalk: (walkId: number) => Promise<void>
+  onAbortWalk: (walkId: number) => Promise<void>
+  finishError: string | null
+  onClearFinishError: () => void
 }
 
 export default function HomeDogCard({
   dogs,
   selectedDogId,
   onSelectDog,
-  hasActiveWalk,
+  activeWalk,
+  activeWalkFetchState,
+  onRetryActiveWalk,
+  onFinishWalk,
+  onAbortWalk,
+  finishError,
+  onClearFinishError,
 }: HomeDogCardProps) {
   const navigate = useNavigate()
-  const selectedDog = dogs.find((d) => d.id === selectedDogId) ?? null
-  const canCycle = dogs.length > 1
+  const [confirmFinish, setConfirmFinish] = useState(false)
+  const [isFinishing, setIsFinishing] = useState(false)
+  const [isAborting, setIsAborting] = useState(false)
 
+  // ── 로딩 상태 ──
+  if (activeWalkFetchState === 'loading') {
+    return (
+      <div className="flex items-center justify-between px-5 py-4 gap-3">
+        <div className="min-w-0">
+          <p className="text-f16 font-semibold text-navy">산책 정보 확인 중...</p>
+          <p className="text-f12 text-navy-40 mt-0.5">잠시만 기다려 주세요</p>
+        </div>
+        <div className="w-7 h-7 rounded-full border-2 border-navy-15 border-t-navy animate-spin flex-shrink-0" />
+      </div>
+    )
+  }
+
+  // ── 조회 실패 ──
+  if (activeWalkFetchState === 'error') {
+    return (
+      <div className="flex items-center justify-between px-5 py-4 gap-3">
+        <div className="min-w-0">
+          <p className="text-f16 font-semibold text-navy">산책 정보를 불러오지 못했어요</p>
+          <p className="text-f12 text-navy-40 mt-0.5">진행 중인 산책이 있을 수 있습니다</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onRetryActiveWalk}>
+          다시 시도
+        </Button>
+      </div>
+    )
+  }
+
+  // ── 활성 산책 복구 ──
+  if (activeWalk) {
+    const isOngoing = activeWalk.status === 'ONGOING'
+    const resumeLabel = isOngoing ? '계속하기' : '재개하기'
+    const statusLabel = isOngoing ? '산책 진행 중' : '일시정지 중'
+
+    async function handleFinish() {
+      setIsFinishing(true)
+      try {
+        await onFinishWalk(activeWalk!.walkId)
+      } finally {
+        setIsFinishing(false)
+        setConfirmFinish(false)
+      }
+    }
+
+    async function handleAbort() {
+      setIsAborting(true)
+      try {
+        await onAbortWalk(activeWalk!.walkId)
+      } finally {
+        setIsAborting(false)
+        setConfirmFinish(false)
+      }
+    }
+
+    // 종료 확인
+    if (confirmFinish) {
+      return (
+        <div className="px-5 py-4 space-y-3">
+          <p className="text-f16 font-semibold text-navy">산책을 종료할까요?</p>
+          <p className="text-f12 text-navy-40">종료하면 서버에 기록된 경로로 결과를 계산합니다.</p>
+          {finishError && <p className="text-f12 text-err">{finishError}</p>}
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="fill"
+              size="sm"
+              fullWidth
+              disabled={isFinishing || isAborting}
+              onClick={handleFinish}
+            >
+              {isFinishing ? '종료 중...' : '종료하기'}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              fullWidth
+              disabled={isFinishing || isAborting}
+              onClick={handleAbort}
+            >
+              {isAborting ? '중단 중...' : '기록 없이 중단하기'}
+            </Button>
+            <button
+              disabled={isFinishing || isAborting}
+              onClick={() => {
+                setConfirmFinish(false)
+                onClearFinishError()
+              }}
+              className="text-f12 text-navy-40 py-1 disabled:opacity-40"
+            >
+              계속 산책하기
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <div className="flex items-center gap-3 px-5 py-4">
+        <div className="flex-1 min-w-0">
+          <p className={`text-f12 font-medium mb-0.5 ${isOngoing ? 'text-ok' : 'text-navy-40'}`}>
+            {statusLabel}
+          </p>
+          <p className="text-f16 font-semibold text-navy truncate">{activeWalk.dogName}</p>
+          <p className="text-f12 text-navy-40">{formatStartTime(activeWalk.startedAt)}</p>
+        </div>
+        <div className="flex flex-col gap-2 flex-shrink-0">
+          <Button
+            variant="fill"
+            size="sm"
+            onClick={() => navigate(ROUTES.WALK.ACTIVE, { state: { activeWalk } })}
+          >
+            {resumeLabel}
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setConfirmFinish(true)}>
+            종료하기
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── 강아지 없음 ──
   if (dogs.length === 0) {
     return (
       <div className="flex items-center justify-between px-5 py-4 gap-3">
@@ -34,6 +180,10 @@ export default function HomeDogCard({
       </div>
     )
   }
+
+  // ── 정상 산책 시작 ──
+  const selectedDog = dogs.find((d) => d.id === selectedDogId) ?? null
+  const canCycle = dogs.length > 1
 
   const markerSrc = selectedDog
     ? resolveMarkerImage({
@@ -78,12 +228,8 @@ export default function HomeDogCard({
         {canCycle && <p className="text-f12 text-navy-40">탭하여 변경</p>}
       </div>
 
-      <Button
-        variant="fill"
-        size="md"
-        onClick={() => navigate(hasActiveWalk ? ROUTES.WALK.ACTIVE : ROUTES.WALK.READY)}
-      >
-        🐾 {hasActiveWalk ? '이어서 하기' : '산책 시작'}
+      <Button variant="fill" size="md" onClick={() => navigate(ROUTES.WALK.READY)}>
+        🐾 산책 시작
       </Button>
     </div>
   )

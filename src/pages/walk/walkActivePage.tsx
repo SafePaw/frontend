@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import GuideModal from '../../components/guide/guideModal'
 import GuideVisual from '../../components/guide/walkActiveVisual'
 import { WALK_HELP_STEPS } from '../../constants/guideSteps'
@@ -12,14 +12,18 @@ import WalkEndModal from '../../components/walk/walkEndModal'
 import { useWalkStore } from '../../stores/walkStore'
 import { useAuthStore } from '../../stores/authStore'
 import { activeWalkStorage } from '../../utils/activeWalkStorage'
-import { pauseWalk, resumeWalk } from '../../api/walks'
+import { pauseWalk, resumeWalk, getActiveWalks } from '../../api/walks'
 import { useGeolocationTracking } from '../../hooks/useGeolocationTracking'
 import { useWalkLivePolling } from '../../hooks/useWalkLivePolling'
 import { useWalkPointUploader } from '../../hooks/useWalkPointUploader'
-import type { WalkPointDto } from '../../types/walk'
+import type { WalkPointDto, ActiveWalkItem } from '../../types/walk'
+import Button from '../../components/ui/button'
+
+type RecoveryState = 'pending' | 'recovered' | 'failed'
 
 export default function WalkActivePage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const user = useAuthStore((s) => s.user)
   const {
     walkId,
@@ -28,11 +32,13 @@ export default function WalkActivePage() {
     liveStats,
     error,
     initialPoint,
+    setWalkSession,
     setServerStatus,
     setPendingAction,
     setError,
   } = useWalkStore()
 
+  const [recoveryState, setRecoveryState] = useState<RecoveryState>('pending')
   const [isHelpOpen, setIsHelpOpen] = useState(false)
   const [isEndModalOpen, setIsEndModalOpen] = useState(false)
   const [routeCoords, setRouteCoords] = useState<[number, number][]>(
@@ -46,10 +52,42 @@ export default function WalkActivePage() {
   const isActive = serverStatus === 'ONGOING'
 
   useEffect(() => {
-    if (!walkId) {
-      navigate(ROUTES.HOME, { replace: true })
+    if (walkId) {
+      setRecoveryState('recovered')
+      return
     }
-  }, [walkId, navigate])
+
+    const routeActiveWalk = (location.state as { activeWalk?: ActiveWalkItem } | null)?.activeWalk
+
+    if (routeActiveWalk) {
+      setWalkSession(
+        routeActiveWalk.walkId,
+        routeActiveWalk.dogId,
+        routeActiveWalk.startedAt,
+        routeActiveWalk.status,
+      )
+      setRecoveryState('recovered')
+      return
+    }
+
+    // 서버 재조회 fallback (새로고침 또는 직접 URL 진입)
+    getActiveWalks()
+      .then((res) => {
+        if (res.walks.length === 0) {
+          setRecoveryState('failed')
+          return
+        }
+        if (res.walks.length > 1) {
+          console.warn('[SafePaw] 복수 활성 산책 감지 (WalkActivePage):', res.walks.length)
+        }
+        const walk = [...res.walks].sort(
+          (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
+        )[0]
+        setWalkSession(walk.walkId, walk.dogId, walk.startedAt, walk.status)
+        setRecoveryState('recovered')
+      })
+      .catch(() => setRecoveryState('failed'))
+  }, [])
 
   const handleNewPoint = useCallback((point: WalkPointDto) => {
     const coord: [number, number] = [point.lng, point.lat]
@@ -74,9 +112,11 @@ export default function WalkActivePage() {
   useWalkLivePolling(walkId)
 
   useEffect(() => {
+    if (recoveryState !== 'recovered') return
+    if (serverStatus !== 'ONGOING') return
     startTracking()
     return () => stopTracking()
-  }, [startTracking, stopTracking])
+  }, [recoveryState, serverStatus, startTracking, stopTracking])
 
   // ── 산책 중지 ──
   async function handlePause() {
@@ -122,7 +162,24 @@ export default function WalkActivePage() {
     }
   }
 
-  if (!walkId) return null
+  if (recoveryState === 'pending') {
+    return (
+      <div className="flex h-full items-center justify-center bg-cream">
+        <div className="w-10 h-10 rounded-full border-4 border-navy-15 border-t-navy animate-spin" />
+      </div>
+    )
+  }
+
+  if (recoveryState === 'failed') {
+    return (
+      <div className="flex flex-col h-full items-center justify-center bg-cream gap-4 px-6">
+        <p className="text-f16 text-navy-40 text-center">진행 중인 산책을 확인하지 못했습니다</p>
+        <Button variant="ghost" size="md" onClick={() => navigate(ROUTES.HOME, { replace: true })}>
+          홈으로 돌아가기
+        </Button>
+      </div>
+    )
+  }
 
   const errorMsg = error?.code === 'LIVE_POLL_FAIL' ? error.message : null
   const gpsErrorMsg = geoError

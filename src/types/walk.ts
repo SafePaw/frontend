@@ -127,3 +127,17 @@ export interface WalkRouteGeoJson {
     coordinates: [number, number][]
   }
 }
+
+export type ActiveWalkStatus = 'ONGOING' | 'PAUSED'
+
+export interface ActiveWalkItem {
+  walkId: number
+  dogId: number
+  dogName: string
+  status: ActiveWalkStatus
+  startedAt: string
+}
+
+export interface ActiveWalksResponse {
+  walks: ActiveWalkItem[]
+}

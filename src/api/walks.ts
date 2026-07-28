@@ -8,6 +8,7 @@ import type {
   WalkResumeResponse,
   WalkFinishResponse,
   WalkDetailResponse,
+  ActiveWalksResponse,
 } from '../types/walk'
 
 function extractErrorCode(err: unknown): string {
@@ -107,6 +108,16 @@ export async function getWalkDetail(walkId: number): Promise<WalkDetailResponse>
     throw Object.assign(new Error(res.data.error?.message ?? '산책 상세 조회에 실패했습니다.'), {
       code: res.data.error?.code,
     })
+  }
+  return res.data.data
+}
+
+export async function getActiveWalks(dogId?: number): Promise<ActiveWalksResponse> {
+  const res = await apiClient.get<ApiResponse<ActiveWalksResponse>>('/walks/active', {
+    params: dogId !== undefined ? { dogId } : undefined,
+  })
+  if (!res.data.success || !res.data.data) {
+    throw new Error('활성 산책 조회에 실패했습니다.')
   }
   return res.data.data
 }
