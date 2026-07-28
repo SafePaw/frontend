@@ -17,7 +17,8 @@ export const ROUTES = {
     READY: '/walk/ready',
     ACTIVE: '/walk/active',
     CONFIRM_END: '/walk/confirm-end',
-    RESULT: '/walk/result',
+    RESULT: '/walk/result/:walkId',
+    RESULT_OF: (walkId: number | string) => `/walk/result/${walkId}`,
     ERROR: {
       LOCATION: '/walk/error/location',
       GPS: '/walk/error/gps',
