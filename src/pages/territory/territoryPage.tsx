@@ -1,42 +1,52 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { getTerritories, getTerritoryDetail } from '../../api/territories'
 import TerritoryMap from '../../components/territory/territoryMap'
 import TerritoryCard from '../../components/territory/territoryCard'
 import BottomNav from '../../components/layout/bottomNav'
 import { toTerritoryFeatureCollection, computeTerritoryBounds } from '../../utils/territoryGeoJson'
-import type { TerritorySummary, TerritoryDetail } from '../../types/territory'
+import type { TerritorySummary, TerritoryDetail, TerritoryBoundsParams } from '../../types/territory'
 
-type FetchState = 'loading' | 'success' | 'error'
+type FetchState = 'loading' | 'success' | 'error' | 'tooLarge'
 
 export default function TerritoryPage() {
   const [territories, setTerritories] = useState<TerritorySummary[]>([])
   const [fetchState, setFetchState] = useState<FetchState>('loading')
-  const [retryCount, setRetryCount] = useState(0)
+  const [fetchTrigger, setFetchTrigger] = useState(0)
+  const boundsRef = useRef<TerritoryBoundsParams | null>(null)
 
   const [selectedTerritoryId, setSelectedTerritoryId] = useState<number | null>(null)
   const [detail, setDetail] = useState<TerritoryDetail | null>(null)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
 
-  // 영토 목록 조회
+  // bounds가 준비된 시점 및 재시도 시 영토 목록 조회
   useEffect(() => {
+    const bounds = boundsRef.current
+    if (!bounds) return
+
     let cancelled = false
     setFetchState('loading')
 
-    getTerritories()
+    getTerritories(bounds)
       .then((data) => {
         if (cancelled) return
         setTerritories(data)
         setFetchState('success')
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (cancelled) return
-        setFetchState('error')
+        const code = (err as { response?: { data?: { error?: { code?: string } } } }).response?.data
+          ?.error?.code
+        if (code === 'TERRITORY_BBOX_TOO_LARGE') {
+          setFetchState('tooLarge')
+        } else {
+          setFetchState('error')
+        }
       })
 
     return () => {
       cancelled = true
     }
-  }, [retryCount])
+  }, [fetchTrigger])
 
   useEffect(() => {
     if (selectedTerritoryId === null) {
@@ -70,6 +80,11 @@ export default function TerritoryPage() {
 
   const selectedTerritory = territories.find((t) => t.id === selectedTerritoryId) ?? null
 
+  function handleBoundsChange(newBounds: TerritoryBoundsParams) {
+    boundsRef.current = newBounds
+    setFetchTrigger((t) => t + 1)
+  }
+
   function handleSelectTerritory(id: number | null) {
     if (id !== selectedTerritoryId) {
       setDetail(null)
@@ -78,9 +93,9 @@ export default function TerritoryPage() {
   }
 
   function handleRetry() {
-    if (fetchState === 'loading') return
+    if (fetchState === 'loading' || !boundsRef.current) return
     setSelectedTerritoryId(null)
-    setRetryCount((c) => c + 1)
+    setFetchTrigger((t) => t + 1)
   }
 
   return (
@@ -91,6 +106,7 @@ export default function TerritoryPage() {
           featureCollection={featureCollection}
           selectedTerritoryId={selectedTerritoryId}
           onSelectTerritory={handleSelectTerritory}
+          onBoundsChange={handleBoundsChange}
           boundsData={boundsData}
         />
       </div>
@@ -114,6 +130,12 @@ export default function TerritoryPage() {
           >
             다시 시도
           </button>
+        </div>
+      )}
+
+      {fetchState === 'tooLarge' && (
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 bg-navy/90 text-cream rounded-full px-4 py-2 shadow-md pointer-events-none whitespace-nowrap">
+          <p className="text-f12 font-medium">지도를 더 당겨주세요</p>
         </div>
       )}
 

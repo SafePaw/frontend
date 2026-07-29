@@ -1,9 +1,21 @@
 import { apiClient } from './client'
 import type { ApiResponse } from '../types/common'
-import type { TerritorySummary, TerritoryDetail, TerritoryPageResponse } from '../types/territory'
+import type {
+  TerritoryBoundsParams,
+  TerritorySummary,
+  TerritoryDetail,
+  TerritoryPageResponse,
+} from '../types/territory'
 
-export async function getTerritories(): Promise<TerritorySummary[]> {
-  const res = await apiClient.get<ApiResponse<TerritorySummary[]>>('/territories')
+export async function getTerritories(bounds: TerritoryBoundsParams): Promise<TerritorySummary[]> {
+  const res = await apiClient.get<ApiResponse<TerritorySummary[]>>('/territories', {
+    params: {
+      swLng: bounds.swLng,
+      swLat: bounds.swLat,
+      neLng: bounds.neLng,
+      neLat: bounds.neLat,
+    },
+  })
   if (!res.data.success || !Array.isArray(res.data.data)) {
     throw new Error(res.data.error?.message ?? '영토 목록 응답 형식이 올바르지 않습니다.')
   }

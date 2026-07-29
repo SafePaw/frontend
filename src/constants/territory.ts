@@ -6,7 +6,7 @@ export const TERRITORY_MAP_IDS = {
 
 export const TERRITORY_MAP_CONFIG = {
   defaultCenter: [127.0, 37.5] as [number, number],
-  defaultZoom: 12,
+  defaultZoom: 15,
   fitBoundsPadding: 60,
   maxZoomOnFit: 15,
   fillOpacityMine: 0.35,

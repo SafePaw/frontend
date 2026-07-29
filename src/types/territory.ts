@@ -1,5 +1,12 @@
 import type { DogRank } from './dog'
 
+export interface TerritoryBoundsParams {
+  swLng: number
+  swLat: number
+  neLng: number
+  neLat: number
+}
+
 export type TerritoryStatus = 'ACTIVE' | 'CONQUERED'
 
 export type LngLatTuple = [number, number]

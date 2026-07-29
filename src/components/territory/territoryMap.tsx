@@ -3,6 +3,7 @@ import mapboxgl from 'mapbox-gl'
 import { MAPBOX_STYLE_URL } from '../../constants/walk'
 import { TERRITORY_MAP_IDS, TERRITORY_MAP_CONFIG } from '../../constants/territory'
 import type { TerritoryFeatureProperties } from '../../utils/territoryGeoJson'
+import type { TerritoryBoundsParams } from '../../types/territory'
 
 type TerritoryFeatureCollection = ReturnType<
   typeof import('../../utils/territoryGeoJson').toTerritoryFeatureCollection
@@ -17,6 +18,7 @@ interface TerritoryMapProps {
   featureCollection: TerritoryFeatureCollection
   selectedTerritoryId: number | null
   onSelectTerritory: (id: number | null) => void
+  onBoundsChange: (bounds: TerritoryBoundsParams) => void
   boundsData: [[number, number], [number, number]] | null
 }
 
@@ -24,6 +26,7 @@ export default function TerritoryMap({
   featureCollection,
   selectedTerritoryId,
   onSelectTerritory,
+  onBoundsChange,
   boundsData,
 }: TerritoryMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -31,12 +34,17 @@ export default function TerritoryMap({
   const mountedRef = useRef(true)
   const hasFittedBoundsRef = useRef(false)
   const onSelectRef = useRef(onSelectTerritory)
+  const onBoundsRef = useRef(onBoundsChange)
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
   useEffect(() => {
     onSelectRef.current = onSelectTerritory
   }, [onSelectTerritory])
+
+  useEffect(() => {
+    onBoundsRef.current = onBoundsChange
+  }, [onBoundsChange])
 
   useEffect(() => {
     mountedRef.current = true
@@ -89,7 +97,29 @@ export default function TerritoryMap({
         },
       })
 
+      const initialBounds = m.getBounds()
+      if (initialBounds) {
+        onBoundsRef.current({
+          swLng: initialBounds.getWest(),
+          swLat: initialBounds.getSouth(),
+          neLng: initialBounds.getEast(),
+          neLat: initialBounds.getNorth(),
+        })
+      }
+
       if (mountedRef.current) setMapReady(true)
+    }
+
+    function handleMoveEnd() {
+      if (!mountedRef.current) return
+      const bounds = map.getBounds()
+      if (!bounds) return
+      onBoundsRef.current({
+        swLng: bounds.getWest(),
+        swLat: bounds.getSouth(),
+        neLng: bounds.getEast(),
+        neLat: bounds.getNorth(),
+      })
     }
 
     function handleError(e: mapboxgl.ErrorEvent) {
@@ -126,6 +156,7 @@ export default function TerritoryMap({
     map.on('load', handleLoad)
     map.on('error', handleError)
     map.on('click', handleClick)
+    map.on('moveend', handleMoveEnd)
     map.on('mouseenter', TERRITORY_MAP_IDS.fillLayer, handleMouseEnter)
     map.on('mouseleave', TERRITORY_MAP_IDS.fillLayer, handleMouseLeave)
 
@@ -134,6 +165,7 @@ export default function TerritoryMap({
       map.off('load', handleLoad)
       map.off('error', handleError)
       map.off('click', handleClick)
+      map.off('moveend', handleMoveEnd)
       map.off('mouseenter', TERRITORY_MAP_IDS.fillLayer, handleMouseEnter)
       map.off('mouseleave', TERRITORY_MAP_IDS.fillLayer, handleMouseLeave)
       resizeObserver.disconnect()
