@@ -2,6 +2,10 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { MAPBOX_STYLE_URL } from '../../constants/walk'
 import { HOME_MAP_CONFIG } from '../../constants/map'
+import { HOME_TERRITORY_MAP_IDS } from '../../constants/territory'
+import { getTerritories } from '../../api/territories'
+import { toTerritoryFeatureCollection } from '../../utils/territoryGeoJson'
+import type { TerritoryBoundsParams } from '../../types/territory'
 import pinImg from '../../assets/pin.png'
 
 type GeoPermission = 'granted' | 'denied' | 'prompt' | 'unsupported'
@@ -13,6 +17,7 @@ export default function HomeMap() {
   const locationMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const pendingCenterRef = useRef<[number, number] | null>(null)
   const mountedRef = useRef(true)
+  const latestTerritoryRequestIdRef = useRef(0)
 
   const [mapError, setMapError] = useState<string | null>(null)
   const [geoPermission, setGeoPermission] = useState<GeoPermission>('prompt')
@@ -62,6 +67,28 @@ export default function HomeMap() {
     })
     mapRef.current = map
 
+    async function fetchHomeTerritories(bounds: TerritoryBoundsParams) {
+      const requestId = ++latestTerritoryRequestIdRef.current
+      try {
+        const data = await getTerritories(bounds)
+        if (requestId !== latestTerritoryRequestIdRef.current) return
+        if (!mountedRef.current) return
+        const source = map.getSource(HOME_TERRITORY_MAP_IDS.source) as
+          | mapboxgl.GeoJSONSource
+          | undefined
+        if (!source) return
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        source.setData(toTerritoryFeatureCollection(data) as any)
+      } catch (err: unknown) {
+        if (requestId !== latestTerritoryRequestIdRef.current) return
+        const code = (err as { response?: { data?: { error?: { code?: string } } } }).response?.data
+          ?.error?.code
+        if (code !== 'TERRITORY_BBOX_TOO_LARGE') {
+          console.error('[SafePaw] 홈 지도 영토 조회 오류:', err)
+        }
+      }
+    }
+
     function handleLoad() {
       if (!mountedRef.current) return
       mapReadyRef.current = true
@@ -69,6 +96,48 @@ export default function HomeMap() {
         applyLocation(pendingCenterRef.current)
         pendingCenterRef.current = null
       }
+
+      map.addSource(HOME_TERRITORY_MAP_IDS.source, {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      })
+      map.addLayer({
+        id: HOME_TERRITORY_MAP_IDS.fillLayer,
+        type: 'fill',
+        source: HOME_TERRITORY_MAP_IDS.source,
+        paint: {
+          'fill-color': ['get', 'color'],
+          'fill-opacity': ['case', ['==', ['get', 'isMine'], true], 0.3, 0.12],
+        },
+      })
+      map.addLayer({
+        id: HOME_TERRITORY_MAP_IDS.outlineLayer,
+        type: 'line',
+        source: HOME_TERRITORY_MAP_IDS.source,
+        paint: { 'line-color': ['get', 'color'], 'line-width': 1.5 },
+      })
+
+      const initialBounds = map.getBounds()
+      if (initialBounds) {
+        fetchHomeTerritories({
+          swLng: initialBounds.getWest(),
+          swLat: initialBounds.getSouth(),
+          neLng: initialBounds.getEast(),
+          neLat: initialBounds.getNorth(),
+        })
+      }
+    }
+
+    function handleMoveEnd() {
+      if (!mountedRef.current) return
+      const bounds = map.getBounds()
+      if (!bounds) return
+      fetchHomeTerritories({
+        swLng: bounds.getWest(),
+        swLat: bounds.getSouth(),
+        neLng: bounds.getEast(),
+        neLat: bounds.getNorth(),
+      })
     }
 
     function handleError(e: mapboxgl.ErrorEvent) {
@@ -79,6 +148,7 @@ export default function HomeMap() {
 
     map.on('load', handleLoad)
     map.on('error', handleError)
+    map.on('moveend', handleMoveEnd)
 
     const resizeObserver = new ResizeObserver(() => {
       mapRef.current?.resize()
@@ -89,6 +159,7 @@ export default function HomeMap() {
       mountedRef.current = false
       map.off('load', handleLoad)
       map.off('error', handleError)
+      map.off('moveend', handleMoveEnd)
       resizeObserver.disconnect()
       locationMarkerRef.current?.remove()
       locationMarkerRef.current = null

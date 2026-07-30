@@ -18,7 +18,7 @@ interface TerritoryMapProps {
   featureCollection: TerritoryFeatureCollection
   selectedTerritoryId: number | null
   onSelectTerritory: (id: number | null) => void
-  onBoundsChange: (bounds: TerritoryBoundsParams) => void
+  onBoundsChange?: (bounds: TerritoryBoundsParams) => void
   boundsData: [[number, number], [number, number]] | null
 }
 
@@ -34,7 +34,7 @@ export default function TerritoryMap({
   const mountedRef = useRef(true)
   const hasFittedBoundsRef = useRef(false)
   const onSelectRef = useRef(onSelectTerritory)
-  const onBoundsRef = useRef(onBoundsChange)
+  const onBoundsRef = useRef<((bounds: TerritoryBoundsParams) => void) | undefined>(onBoundsChange)
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
@@ -98,7 +98,7 @@ export default function TerritoryMap({
       })
 
       const initialBounds = m.getBounds()
-      if (initialBounds) {
+      if (initialBounds && onBoundsRef.current) {
         onBoundsRef.current({
           swLng: initialBounds.getWest(),
           swLat: initialBounds.getSouth(),
@@ -111,7 +111,7 @@ export default function TerritoryMap({
     }
 
     function handleMoveEnd() {
-      if (!mountedRef.current) return
+      if (!mountedRef.current || !onBoundsRef.current) return
       const bounds = map.getBounds()
       if (!bounds) return
       onBoundsRef.current({

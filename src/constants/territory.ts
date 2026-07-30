@@ -4,6 +4,12 @@ export const TERRITORY_MAP_IDS = {
   outlineLayer: 'territory-outline',
 } as const
 
+export const HOME_TERRITORY_MAP_IDS = {
+  source: 'home-territory-source',
+  fillLayer: 'home-territory-fill',
+  outlineLayer: 'home-territory-outline',
+} as const
+
 export const TERRITORY_MAP_CONFIG = {
   defaultCenter: [127.0, 37.5] as [number, number],
   defaultZoom: 15,
