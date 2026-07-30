@@ -98,6 +98,7 @@ export default function TerritoryPage() {
           selectedTerritoryId={selectedTerritoryId}
           onSelectTerritory={handleSelectTerritory}
           boundsData={boundsData}
+          territories={territories}
         />
       </div>
 
@@ -124,15 +125,6 @@ export default function TerritoryPage() {
         </div>
       )}
 
-      {/* 통계 */}
-      {fetchState === 'success' && territories.length > 0 && (
-        <div className="absolute top-5 left-1/2 -translate-x-1/2 z-10 bg-navy/90 text-cream rounded-full px-4 py-2 shadow-md pointer-events-none whitespace-nowrap">
-          <p className="text-f12 font-medium">
-            {territories.length}개 영토 · {Math.round(totalArea).toLocaleString()}㎡
-          </p>
-        </div>
-      )}
-
       {/* 영토 없는 경우 */}
       {fetchState === 'success' && territories.length === 0 && (
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-cream/90 rounded-xl px-6 py-5 text-center shadow-md max-w-xs">
@@ -150,6 +142,17 @@ export default function TerritoryPage() {
               isLoadingDetail={isLoadingDetail}
               onClose={() => setSelectedTerritoryId(null)}
             />
+          </div>
+        )}
+        {fetchState === 'success' && territories.length > 0 && (
+          <div className="flex items-center justify-center gap-3 border-t border-navy-15 bg-cream/95 px-4 py-3 backdrop-blur pointer-events-none">
+            <span className="text-f12 text-navy-70">
+              내 영토 <strong className="text-navy font-semibold">{territories.length}개</strong>
+            </span>
+            <span className="h-3 w-px bg-navy-15" />
+            <span className="text-f12 text-navy-70">
+              총 면적 <strong className="text-navy font-semibold">{Math.round(totalArea).toLocaleString()}㎡</strong>
+            </span>
           </div>
         )}
         <BottomNav />

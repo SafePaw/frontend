@@ -90,3 +90,15 @@ export function computeTerritoryBounds(
     [maxLng, maxLat],
   ]
 }
+
+export function computePolygonCentroid(coordinates: number[][][]): [number, number] {
+  const ring = coordinates[0]
+  if (!ring?.length) return [0, 0]
+  let sumLng = 0
+  let sumLat = 0
+  for (const coord of ring) {
+    sumLng += coord[0]
+    sumLat += coord[1]
+  }
+  return [sumLng / ring.length, sumLat / ring.length]
+}

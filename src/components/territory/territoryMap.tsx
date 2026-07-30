@@ -3,7 +3,9 @@ import mapboxgl from 'mapbox-gl'
 import { MAPBOX_STYLE_URL } from '../../constants/walk'
 import { TERRITORY_MAP_IDS, TERRITORY_MAP_CONFIG } from '../../constants/territory'
 import type { TerritoryFeatureProperties } from '../../utils/territoryGeoJson'
-import type { TerritoryBoundsParams } from '../../types/territory'
+import { computePolygonCentroid } from '../../utils/territoryGeoJson'
+import type { TerritoryBoundsParams, TerritorySummary } from '../../types/territory'
+import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
 
 type TerritoryFeatureCollection = ReturnType<
   typeof import('../../utils/territoryGeoJson').toTerritoryFeatureCollection
@@ -20,6 +22,7 @@ interface TerritoryMapProps {
   onSelectTerritory: (id: number | null) => void
   onBoundsChange?: (bounds: TerritoryBoundsParams) => void
   boundsData: [[number, number], [number, number]] | null
+  territories?: TerritorySummary[]
 }
 
 export default function TerritoryMap({
@@ -28,6 +31,7 @@ export default function TerritoryMap({
   onSelectTerritory,
   onBoundsChange,
   boundsData,
+  territories,
 }: TerritoryMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
@@ -35,6 +39,7 @@ export default function TerritoryMap({
   const hasFittedBoundsRef = useRef(false)
   const onSelectRef = useRef(onSelectTerritory)
   const onBoundsRef = useRef<((bounds: TerritoryBoundsParams) => void) | undefined>(onBoundsChange)
+  const dogMarkersRef = useRef<mapboxgl.Marker[]>([])
   const [mapReady, setMapReady] = useState(false)
   const [mapError, setMapError] = useState<string | null>(null)
 
@@ -64,6 +69,7 @@ export default function TerritoryMap({
       center: TERRITORY_MAP_CONFIG.defaultCenter,
       zoom: TERRITORY_MAP_CONFIG.defaultZoom,
       attributionControl: false,
+      language: 'ko',
     })
     mapRef.current = map
 
@@ -169,6 +175,8 @@ export default function TerritoryMap({
       map.off('mouseenter', TERRITORY_MAP_IDS.fillLayer, handleMouseEnter)
       map.off('mouseleave', TERRITORY_MAP_IDS.fillLayer, handleMouseLeave)
       resizeObserver.disconnect()
+      dogMarkersRef.current.forEach((m) => m.remove())
+      dogMarkersRef.current = []
       setMapReady(false)
       map.remove()
       mapRef.current = null
@@ -228,6 +236,33 @@ export default function TerritoryMap({
     )
     hasFittedBoundsRef.current = true
   }, [mapReady, boundsData])
+
+  useEffect(() => {
+    if (!mapReady) return
+    const map = mapRef.current
+    if (!map || !territories) return
+
+    dogMarkersRef.current.forEach((m) => m.remove())
+    dogMarkersRef.current = []
+
+    for (const territory of territories) {
+      if (!territory.polygon?.coordinates?.length) continue
+      const centroid = computePolygonCentroid(territory.polygon.coordinates)
+
+      const el = document.createElement('div')
+      el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);flex-shrink:0;`
+      const img = document.createElement('img')
+      img.src = territory.dog.markerImageUrl ?? DEFAULT_MARKER_IMAGE_SRC
+      img.alt = territory.dog.name
+      img.style.cssText = 'width:100%;height:100%;object-fit:contain;'
+      el.appendChild(img)
+
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat(centroid)
+        .addTo(map)
+      dogMarkersRef.current.push(marker)
+    }
+  }, [territories, mapReady])
 
   if (mapError) {
     return (

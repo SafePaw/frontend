@@ -7,6 +7,8 @@ import { getTerritories } from '../../api/territories'
 import { toTerritoryFeatureCollection } from '../../utils/territoryGeoJson'
 import type { TerritoryBoundsParams } from '../../types/territory'
 import pinImg from '../../assets/pin.png'
+import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
+import { computePolygonCentroid } from '../../utils/territoryGeoJson'
 
 type GeoPermission = 'granted' | 'denied' | 'prompt' | 'unsupported'
 
@@ -15,6 +17,7 @@ export default function HomeMap() {
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const mapReadyRef = useRef(false)
   const locationMarkerRef = useRef<mapboxgl.Marker | null>(null)
+  const territoryMarkersRef = useRef<mapboxgl.Marker[]>([])
   const pendingCenterRef = useRef<[number, number] | null>(null)
   const mountedRef = useRef(true)
   const latestTerritoryRequestIdRef = useRef(0)
@@ -64,6 +67,7 @@ export default function HomeMap() {
       center: HOME_MAP_CONFIG.defaultCenter,
       zoom: HOME_MAP_CONFIG.defaultZoom,
       attributionControl: false,
+      language: 'ko',
     })
     mapRef.current = map
 
@@ -79,6 +83,24 @@ export default function HomeMap() {
         if (!source) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         source.setData(toTerritoryFeatureCollection(data) as any)
+
+        territoryMarkersRef.current.forEach((m) => m.remove())
+        territoryMarkersRef.current = []
+        for (const territory of data) {
+          if (!territory.isMine || !territory.polygon?.coordinates?.length) continue
+          const centroid = computePolygonCentroid(territory.polygon.coordinates)
+          const el = document.createElement('div')
+          el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);`
+          const img = document.createElement('img')
+          img.src = territory.dog.markerImageUrl ?? DEFAULT_MARKER_IMAGE_SRC
+          img.alt = territory.dog.name
+          img.style.cssText = 'width:100%;height:100%;object-fit:contain;'
+          el.appendChild(img)
+          const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+            .setLngLat(centroid)
+            .addTo(map)
+          territoryMarkersRef.current.push(marker)
+        }
       } catch (err: unknown) {
         if (requestId !== latestTerritoryRequestIdRef.current) return
         const code = (err as { response?: { data?: { error?: { code?: string } } } }).response?.data
@@ -163,6 +185,8 @@ export default function HomeMap() {
       resizeObserver.disconnect()
       locationMarkerRef.current?.remove()
       locationMarkerRef.current = null
+      territoryMarkersRef.current.forEach((m) => m.remove())
+      territoryMarkersRef.current = []
       mapReadyRef.current = false
       map.remove()
       mapRef.current = null

@@ -72,21 +72,21 @@ export default function TerritoryCard({
               </span>
             )}
           </div>
-          <p className="text-f12 text-navy-40 mt-0.5">{rankLabel}</p>
+          <p className="text-f12 text-navy-70 mt-0.5">{rankLabel}</p>
 
           <div className="mt-2 space-y-0.5">
             {!isConquered && (
-              <p className="text-f12 text-navy-40">
+              <p className="text-f12 text-navy-70">
                 <span className="font-medium text-navy">{formatArea(areaSquareMeters)}</span>
               </p>
             )}
-            <p className="text-f12 text-navy-40">{formatDate(claimedAt)} 획득</p>
+            <p className="text-f12 text-navy-70">{formatDate(claimedAt)} 획득</p>
 
             {/* 상세 로딩 */}
             {isLoadingDetail && (
               <div className="flex items-center gap-1 mt-1">
                 <div className="w-3 h-3 rounded-full border border-navy-15 border-t-navy animate-spin" />
-                <span className="text-f12 text-navy-40">상세 정보 불러오는 중...</span>
+                <span className="text-f12 text-navy-70">상세 정보 불러오는 중...</span>
               </div>
             )}
 

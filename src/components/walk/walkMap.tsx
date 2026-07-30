@@ -62,6 +62,7 @@ export default function WalkMap({
       center,
       zoom: 16,
       attributionControl: false,
+      language: 'ko',
     })
 
     mapRef.current = map
