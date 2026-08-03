@@ -15,6 +15,8 @@ export const ROUTES = {
 
   TERRITORY: '/territory',
 
+  RANKING: '/ranking',
+
   WALK: {
     READY: '/walk/ready',
     ACTIVE: '/walk/active',

@@ -11,6 +11,7 @@ export default function BottomNav() {
 
   const isMap = pathname === ROUTES.HOME
   const isTerritory = pathname === ROUTES.TERRITORY
+  const isRanking = pathname === ROUTES.RANKING
   const isMy = pathname.startsWith(ROUTES.MY.INDEX)
 
   return (
@@ -48,13 +49,17 @@ export default function BottomNav() {
 
       {/* 랭킹 */}
       <button
-        disabled
-        className="flex-1 flex flex-col items-center py-2 gap-0.5 opacity-40 cursor-not-allowed"
-        title="준비 중인 기능입니다"
+        onClick={() => navigate(ROUTES.RANKING)}
+        className="flex-1 flex flex-col items-center py-2 gap-0.5 active:opacity-70 transition-opacity"
+        aria-current={isRanking ? 'page' : undefined}
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-transparent mb-0.5" />
+        <span
+          className={`w-1.5 h-1.5 rounded-full mb-0.5 ${isRanking ? 'bg-navy' : 'bg-transparent'}`}
+        />
         <img src={rankingIcon} alt="랭킹" className="w-6 h-6 object-contain" />
-        <span className="text-f12 text-navy-40">랭킹</span>
+        <span className={`text-f12 ${isRanking ? 'font-semibold text-navy' : 'text-navy-40'}`}>
+          랭킹
+        </span>
       </button>
 
       {/* 마이 */}
