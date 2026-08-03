@@ -7,13 +7,10 @@ import { getDogs } from '../../api/dogs'
 import { getActiveWalks, finishWalk, abortWalk, extractErrorCode } from '../../api/walks'
 import HomeMap from '../../components/home/homeMap'
 import HomeDogCard from '../../components/home/homeDogCard'
+import BottomNav from '../../components/layout/bottomNav'
 import { ROUTES } from '../../constants/routes'
 import type { Dog } from '../../types/dog'
 import type { ActiveWalkItem } from '../../types/walk'
-import mapIcon from '../../assets/map.png'
-import flagIcon from '../../assets/flag.png'
-import rankingIcon from '../../assets/ranking.png'
-import pawIcon from '../../assets/paw.png'
 
 export type ActiveWalkFetchState = 'loading' | 'success' | 'error'
 
@@ -144,49 +141,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div
-          className="bg-cream border-t border-navy-15 flex"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-        >
-          {/* 지도 */}
-          <div className="flex-1 flex flex-col items-center py-2 gap-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-navy mb-0.5" />
-            <img src={mapIcon} alt="지도" className="w-6 h-6 object-contain" />
-            <span className="text-f12 font-semibold text-navy">지도</span>
-          </div>
-
-          {/* 영토 */}
-          <button
-            disabled
-            className="flex-1 flex flex-col items-center py-2 gap-0.5 opacity-40 cursor-not-allowed"
-            title="준비 중인 기능입니다"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-transparent mb-0.5" />
-            <img src={flagIcon} alt="영토" className="w-6 h-6 object-contain" />
-            <span className="text-f12 text-navy-40">영토</span>
-          </button>
-
-          {/* 랭킹 */}
-          <button
-            disabled
-            className="flex-1 flex flex-col items-center py-2 gap-0.5 opacity-40 cursor-not-allowed"
-            title="준비 중인 기능입니다"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-transparent mb-0.5" />
-            <img src={rankingIcon} alt="랭킹" className="w-6 h-6 object-contain" />
-            <span className="text-f12 text-navy-40">랭킹</span>
-          </button>
-
-          {/* 마이 */}
-          <button
-            onClick={() => navigate(ROUTES.MY.INDEX)}
-            className="flex-1 flex flex-col items-center py-2 gap-0.5 active:opacity-70 transition-opacity"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-transparent mb-0.5" />
-            <img src={pawIcon} alt="마이" className="w-6 h-6 object-contain" />
-            <span className="text-f12 text-navy-40">마이</span>
-          </button>
-        </div>
+        <BottomNav />
       </div>
     </div>
   )

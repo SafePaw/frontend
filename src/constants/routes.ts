@@ -13,6 +13,8 @@ export const ROUTES = {
 
   HOME: '/home',
 
+  TERRITORY: '/territory',
+
   WALK: {
     READY: '/walk/ready',
     ACTIVE: '/walk/active',

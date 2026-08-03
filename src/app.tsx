@@ -10,6 +10,7 @@ import DogRegisterPage from './pages/onboarding/dogRegisterPage'
 import TerritoryColorPage from './pages/onboarding/territoryColorPage'
 import ServiceIntroPage from './pages/onboarding/serviceIntroPage'
 import HomePage from './pages/home/homePage'
+import TerritoryPage from './pages/territory/territoryPage'
 import WalkReadyPage from './pages/walk/walkReadyPage'
 import WalkActivePage from './pages/walk/walkActivePage'
 import WalkResultPage from './pages/walk/walkResultPage'
@@ -37,6 +38,7 @@ export default function App() {
           <Route path={ROUTES.ONBOARDING.COLOR} element={<TerritoryColorPage />} />
           <Route path={ROUTES.ONBOARDING.TUTORIAL} element={<ServiceIntroPage />} />
           <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.TERRITORY} element={<TerritoryPage />} />
           <Route path={ROUTES.WALK.READY} element={<WalkReadyPage />} />
           <Route path={ROUTES.WALK.ACTIVE} element={<WalkActivePage />} />
           <Route path={ROUTES.WALK.RESULT} element={<WalkResultPage />} />

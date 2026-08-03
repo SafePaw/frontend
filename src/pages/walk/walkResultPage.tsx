@@ -27,6 +27,7 @@ const XP_SOURCE_LABELS: Record<string, string> = {
   WALK_DISTANCE: '거리 스페셜 리워드',
   TERRITORY: '영토 획득',
   TERRITORY_CLAIM: '영토 획득',
+  TERRITORY_CLAIMED: '영토 획득',
   TERRITORY_BONUS: '영토 스페셜 리워드',
   LOOP: '순환 스페셜 리워드',
   LOOP_BONUS: '순환 스페셜 리워드',
@@ -160,7 +161,7 @@ export default function WalkResultPage() {
       <div className="flex-1 overflow-y-auto px-6 pb-12 space-y-4">
         {/* 통계 */}
         <div className="bg-navy-8 rounded-xl px-5 py-5 space-y-3">
-          <p className="text-f12 font-medium text-navy-40">산책 통계</p>
+          <p className="text-f12 font-medium text-navy-70">산책 통계</p>
           <div className="grid grid-cols-2 gap-3">
             <StatItem label="거리" value={stats ? formatDistance(stats.distanceMeters) : '—'} />
             <StatItem label="시간" value={stats ? formatDuration(stats.durationSeconds) : '—'} />
@@ -178,15 +179,15 @@ export default function WalkResultPage() {
         {/* XP 및 랭크 */}
         {finishResult && (
           <div className="bg-navy-8 rounded-xl px-5 py-5 space-y-2">
-            <p className="text-f12 font-medium text-navy-40">획득 보상</p>
+            <p className="text-f12 font-medium text-navy-70">획득 보상</p>
             {finishResult.xpGained.map((xp, i) => (
               <div key={i} className="flex justify-between">
-                <span className="text-f14 text-navy-40">{formatXpSource(xp.source)}</span>
+                <span className="text-f14 text-navy-70">{formatXpSource(xp.source)}</span>
                 <span className="text-f14 text-navy font-medium">+{xp.amount} XP</span>
               </div>
             ))}
             <div className="flex justify-between pt-1 border-t border-navy-15">
-              <span className="text-f14 text-navy-40">총 XP</span>
+              <span className="text-f14 text-navy-70">총 XP</span>
               <span className="text-f14 text-navy font-semibold">
                 {finishResult.totalXpAfter.toLocaleString()} XP
               </span>
@@ -202,7 +203,7 @@ export default function WalkResultPage() {
         {/* 영토 획득 결과 */}
         {finishResult?.walkType === 'TERRITORY' && finishResult.territory && (
           <div className="bg-navy-8 rounded-xl px-5 py-5 space-y-1">
-            <p className="text-f12 font-medium text-navy-40">영토 획득</p>
+            <p className="text-f12 font-medium text-navy-70">영토 획득</p>
             <p className="text-f16 text-navy font-semibold">
               {Math.round(finishResult.territory.areaSquareMeters).toLocaleString()} m²
             </p>
@@ -240,7 +241,7 @@ export default function WalkResultPage() {
 function StatItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-f12 text-navy-40">{label}</span>
+      <span className="text-f12 text-navy-70">{label}</span>
       <span className="text-f18 font-light text-navy tabular-nums">{value}</span>
     </div>
   )
