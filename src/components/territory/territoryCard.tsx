@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
+import { DEFAULT_MARKER_IMAGE_SRC, resolveMarkerImage } from '../../utils/markerImage'
 import type { TerritorySummary, TerritoryDetail } from '../../types/territory'
 import type { DogRank } from '../../types/dog'
 
@@ -36,7 +36,14 @@ export default function TerritoryCard({
   const [imgError, setImgError] = useState(false)
   const { dog, areaSquareMeters, claimedAt, isMine, status } = territory
 
-  const markerSrc = !imgError && dog.markerImageUrl ? dog.markerImageUrl : DEFAULT_MARKER_IMAGE_SRC
+  const markerSrc = imgError
+    ? DEFAULT_MARKER_IMAGE_SRC
+    : resolveMarkerImage({
+        markerImageType: dog.markerImageType,
+        markerImageValue: dog.markerImageValue,
+        markerImageUrl: dog.markerImageUrl,
+      })
+  const imgFit = dog.markerImageType === 'UPLOADED' ? 'object-cover' : 'object-contain'
 
   const rankLabel = RANK_LABELS[dog.rank] ?? dog.rank
   const isConquered = status === 'CONQUERED'
@@ -52,7 +59,7 @@ export default function TerritoryCard({
           <img
             src={markerSrc}
             alt={dog.name}
-            className="w-10 h-10 object-contain"
+            className={`w-10 h-10 ${imgFit}`}
             onError={() => setImgError(true)}
           />
         </div>

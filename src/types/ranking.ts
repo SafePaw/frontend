@@ -1,4 +1,4 @@
-import type { DogRank } from './dog'
+import type { DogRank, MarkerImageType } from './dog'
 
 export type RankingCategoryKey = 'xp' | 'distance' | 'duration' | 'territory'
 export type RankingCategory = 'XP' | 'DISTANCE' | 'DURATION' | 'TERRITORY'
@@ -8,6 +8,8 @@ export interface RankingItem {
   rank: number
   dogId: number
   dogName: string
+  markerImageType: MarkerImageType | null
+  markerImageValue: string | null
   markerImageUrl: string | null
   rankBadge: DogRank | null
   territoryColor: string | null
@@ -49,4 +51,8 @@ export interface MyRankingData {
   dogId: number
   dogName: string
   rankings: MyRankings
+  markerImageType?: MarkerImageType | null
+  markerImageValue?: string | null
+  markerImageUrl?: string | null
+  territoryColor?: string | null
 }
