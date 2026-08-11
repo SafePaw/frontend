@@ -5,7 +5,7 @@ import { TERRITORY_MAP_IDS, TERRITORY_MAP_CONFIG } from '../../constants/territo
 import type { TerritoryFeatureProperties } from '../../utils/territoryGeoJson'
 import { computePolygonCentroid } from '../../utils/territoryGeoJson'
 import type { TerritoryBoundsParams, TerritorySummary } from '../../types/territory'
-import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
+import { DEFAULT_MARKER_IMAGE_SRC, resolveMarkerImage } from '../../utils/markerImage'
 
 type TerritoryFeatureCollection = ReturnType<
   typeof import('../../utils/territoryGeoJson').toTerritoryFeatureCollection
@@ -252,9 +252,15 @@ export default function TerritoryMap({
       const el = document.createElement('div')
       el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);flex-shrink:0;`
       const img = document.createElement('img')
-      img.src = territory.dog.markerImageUrl ?? DEFAULT_MARKER_IMAGE_SRC
+      img.src = resolveMarkerImage({
+        markerImageType: territory.dog.markerImageType,
+        markerImageValue: territory.dog.markerImageValue,
+        markerImageUrl: territory.dog.markerImageUrl,
+      })
       img.alt = territory.dog.name
-      img.style.cssText = 'width:100%;height:100%;object-fit:contain;'
+      const objectFit = territory.dog.markerImageType === 'UPLOADED' ? 'cover' : 'contain'
+      img.style.cssText = `width:100%;height:100%;object-fit:${objectFit};`
+      img.onerror = () => { img.src = DEFAULT_MARKER_IMAGE_SRC }
       el.appendChild(img)
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })

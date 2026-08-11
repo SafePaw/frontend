@@ -1,4 +1,4 @@
-import type { DogRank } from './dog'
+import type { DogRank, MarkerImageType } from './dog'
 
 export interface TerritoryBoundsParams {
   swLng: number
@@ -21,6 +21,8 @@ export interface TerritoryDog {
   name: string
   rank: DogRank
   territoryColor: string
+  markerImageType?: MarkerImageType | null
+  markerImageValue?: string | null
   markerImageUrl?: string | null
 }
 

@@ -7,6 +7,7 @@ import { getDogs } from '../../api/dogs'
 import { useAuthStore } from '../../stores/authStore'
 import { resolveMarkerImage, DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
 import Button from '../../components/ui/button'
+import BottomNav from '../../components/layout/bottomNav'
 import type { MeResponse, MeDogSummary } from '../../types/me'
 import type { Dog, DogRank } from '../../types/dog'
 
@@ -145,7 +146,7 @@ export default function MyPage() {
         <h1 className="text-f20 font-semibold text-navy">마이페이지</h1>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-12 space-y-5">
+      <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-5">
         <div className="bg-navy-8 rounded-xl px-5 py-5 space-y-3 border border-navy-15 shadow-sm">
           <p className="text-f12 font-medium text-navy-40">계정 정보</p>
           {isEditingNickname ? (
@@ -338,6 +339,7 @@ export default function MyPage() {
           <p className="text-f12 text-navy-40 text-center">v{APP_VERSION}</p>
         </div>
       </div>
+      <BottomNav />
     </div>
   )
 }
