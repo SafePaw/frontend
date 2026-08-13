@@ -9,6 +9,7 @@ import type {
   WalkFinishResponse,
   WalkDetailResponse,
   ActiveWalksResponse,
+  WalkHistoryPage,
 } from '../types/walk'
 
 function extractErrorCode(err: unknown): string {
@@ -118,6 +119,17 @@ export async function getActiveWalks(dogId?: number): Promise<ActiveWalksRespons
   })
   if (!res.data.success || !res.data.data) {
     throw new Error('활성 산책 조회에 실패했습니다.')
+  }
+  return res.data.data
+}
+
+export async function getMyWalks(params?: {
+  page?: number
+  size?: number
+}): Promise<WalkHistoryPage> {
+  const res = await apiClient.get<ApiResponse<WalkHistoryPage>>('/me/walks', { params })
+  if (!res.data.success || !res.data.data) {
+    throw new Error(res.data.error?.message ?? '산책 기록 조회에 실패했습니다.')
   }
   return res.data.data
 }

@@ -6,6 +6,7 @@ import { resolveMarkerImage, DEFAULT_MARKER_IMAGE_SRC } from '../../utils/marker
 import type { Dog } from '../../types/dog'
 import type { ActiveWalkItem } from '../../types/walk'
 import type { ActiveWalkFetchState } from '../../pages/home/homePage'
+import pawImg from '../../assets/paw.png'
 
 function formatStartTime(startedAt: string): string {
   const date = new Date(startedAt)
@@ -229,7 +230,7 @@ export default function HomeDogCard({
       </div>
 
       <Button variant="fill" size="md" onClick={() => navigate(ROUTES.WALK.READY)}>
-        🐾 산책 시작
+        <img src={pawImg} alt="" className="w-4 h-4 inline-block mr-1" />산책 시작
       </Button>
     </div>
   )

@@ -8,6 +8,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { resolveMarkerImage, DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
 import Button from '../../components/ui/button'
 import BottomNav from '../../components/layout/bottomNav'
+import pawImg from '../../assets/paw.png'
 import type { MeResponse, MeDogSummary } from '../../types/me'
 import type { Dog, DogRank } from '../../types/dog'
 
@@ -210,9 +211,7 @@ export default function MyPage() {
 
           {me.dogs.length === 0 ? (
             <div className="bg-navy-5 rounded-xl px-5 py-8 flex flex-col items-center gap-3">
-              <span className="text-f40" aria-hidden="true">
-                🐾
-              </span>
+              <img src={pawImg} alt="" className="w-10 h-10" />
               <p className="text-f16 text-navy-40">아직 등록된 강아지가 없어요</p>
               <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.DOGS.REGISTRATION)}>
                 강아지 등록하기
@@ -275,7 +274,7 @@ export default function MyPage() {
               </span>
             </button>
             <button
-              onClick={showComingSoon}
+              onClick={() => navigate(ROUTES.MY.HISTORY)}
               className="w-full px-5 py-4 text-left text-f16 text-navy flex items-center justify-between active:opacity-70 transition-opacity"
             >
               <span>산책 기록</span>

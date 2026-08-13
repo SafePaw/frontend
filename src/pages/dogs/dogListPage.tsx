@@ -5,6 +5,7 @@ import { getDogs } from '../../api/dogs'
 import { resolveMarkerImage } from '../../utils/markerImage'
 import Button from '../../components/ui/button'
 import type { Dog } from '../../types/dog'
+import pawImg from '../../assets/paw.png'
 
 const MAX_DOGS = 5
 
@@ -68,7 +69,7 @@ export default function DogListPage() {
       <div className="flex-1 overflow-y-auto px-6 pb-6">
         {dogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-4 pb-20">
-            <span className="text-f40" aria-hidden="true">🐾</span>
+            <img src={pawImg} alt="" className="w-10 h-10" />
             <p className="text-f16 text-navy-40">아직 등록된 강아지가 없어요</p>
             <Button variant="fill" onClick={() => navigate(ROUTES.DOGS.REGISTRATION)}>
               강아지 등록하기
