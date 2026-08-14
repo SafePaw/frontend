@@ -202,7 +202,7 @@ function BarChart({ bars, filter }: { bars: BarEntry[]; filter: FilterTab }) {
             </div>
             <div style={{ height: '20px' }} className="flex items-start justify-center w-full pt-1">
               {hasLabel && (
-                <span className="text-navy-40 leading-none" style={{ fontSize: '8px' }}>
+                <span className="text-navy-70 leading-none" style={{ fontSize: '8px' }}>
                   {b.label}
                 </span>
               )}
@@ -243,11 +243,11 @@ function ActivityCard({
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-f12 text-navy-40 mb-0.5">{formatCardDate(item.startedAt)}</p>
+        <p className="text-f12 text-navy-70 mb-0.5">{formatCardDate(item.startedAt)}</p>
         <p className="text-f14 font-semibold text-navy mb-1 truncate">
           {item.dogName}
           {isTerritory && (
-            <span className="text-f12 font-normal text-navy-40 ml-1">· 영토 획득</span>
+            <span className="text-f12 font-normal text-navy-70 ml-1">· 영토 획득</span>
           )}
         </p>
         <div className="flex items-center gap-2">
@@ -255,17 +255,17 @@ function ActivityCard({
             {formatDistance(item.stats.distanceMeters)}
           </span>
           <span className="text-navy-15">·</span>
-          <span className="text-f13 text-navy-40 tabular-nums">
+          <span className="text-f13 text-navy-70 tabular-nums">
             {formatDuration(item.stats.durationSeconds)}
           </span>
           <span className="text-navy-15">·</span>
-          <span className="text-f13 text-navy-40 tabular-nums">
+          <span className="text-f13 text-navy-70 tabular-nums">
             {item.stats.averageSpeedKmh.toFixed(1)} km/h
           </span>
         </div>
       </div>
 
-      <span className="text-navy-40 text-f16 flex-shrink-0">›</span>
+      <span className="text-navy-70 text-f16 flex-shrink-0">›</span>
     </button>
   )
 }
@@ -400,7 +400,7 @@ export default function WalkHistoryPage() {
                 onClick={() => handleFilter(tab)}
                 className={[
                   'flex-1 py-1.5 text-f13 font-medium rounded-full transition-colors duration-150',
-                  filter === tab ? 'bg-navy text-cream' : 'text-navy-40',
+                  filter === tab ? 'bg-navy text-cream' : 'text-navy-70',
                 ].join(' ')}
               >
                 {tab === 'week' ? '주' : tab === 'month' ? '월' : tab === 'year' ? '년' : '전체'}
@@ -417,7 +417,7 @@ export default function WalkHistoryPage() {
             <div className="flex items-center">
               <button
                 onClick={() => setAnchor((prev) => navigatePeriod(filter, prev, -1))}
-                className="w-9 h-9 flex items-center justify-center text-navy-40 active:opacity-50"
+                className="w-9 h-9 flex items-center justify-center text-navy-70 active:opacity-50"
                 aria-label="이전"
               >
                 <span className="text-f20 leading-none">‹</span>
@@ -425,7 +425,7 @@ export default function WalkHistoryPage() {
               <button
                 onClick={() => setAnchor((prev) => navigatePeriod(filter, prev, 1))}
                 disabled={!canGoNext}
-                className="w-9 h-9 flex items-center justify-center text-navy-40 active:opacity-50 disabled:opacity-25"
+                className="w-9 h-9 flex items-center justify-center text-navy-70 active:opacity-50 disabled:opacity-25"
                 aria-label="다음"
               >
                 <span className="text-f20 leading-none">›</span>
@@ -441,7 +441,7 @@ export default function WalkHistoryPage() {
           >
             {totalDistanceM > 0 ? (totalDistanceM / 1000).toFixed(1) : '0.0'}
           </p>
-          <p className="text-f13 text-navy-40 mt-1">킬로미터</p>
+          <p className="text-f13 text-navy-70 mt-1">킬로미터</p>
         </div>
 
         {walkCount > 0 && (
@@ -460,7 +460,7 @@ export default function WalkHistoryPage() {
           {periodWalks.length === 0 ? (
             <div className="flex flex-col items-center py-12 gap-3">
               <img src={pawImg} alt="" className="w-10 h-10" />
-              <p className="text-f14 text-navy-40 text-center">이 기간의 산책 기록이 없어요</p>
+              <p className="text-f14 text-navy-70 text-center">이 기간의 산책 기록이 없어요</p>
               <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.WALK.READY)}>
                 산책 시작하기
               </Button>
@@ -493,7 +493,7 @@ function SubStat({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-f16 font-semibold text-navy tabular-nums leading-tight">{value}</p>
-      <p className="text-f12 text-navy-40 mt-0.5">{label}</p>
+      <p className="text-f12 text-navy-70 mt-0.5">{label}</p>
     </div>
   )
 }

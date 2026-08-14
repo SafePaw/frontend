@@ -212,7 +212,7 @@ export default function WalkReadyPage() {
         {/* 강아지 선택 */}
         {!isLoading && dogs.length === 0 && (
           <div className="py-8 text-center">
-            <p className="text-f16 text-navy-40 mb-4">등록된 강아지가 없습니다.</p>
+            <p className="text-f16 text-navy-70 mb-4">등록된 강아지가 없습니다.</p>
             <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.DOGS.REGISTRATION)}>
               강아지 등록하기
             </Button>
@@ -221,7 +221,7 @@ export default function WalkReadyPage() {
 
         {!isLoading && dogs.length >= 2 && (
           <div>
-            <p className="text-f14 text-navy-40 mb-3">함께 산책할 강아지를 선택해 주세요</p>
+            <p className="text-f14 text-navy-70 mb-3">함께 산책할 강아지를 선택해 주세요</p>
             <div className="space-y-2">
               {dogs.map((dog) => (
                 <button
@@ -257,10 +257,10 @@ export default function WalkReadyPage() {
         )}
 
         {pageState === 'gps-check' && (
-          <p className="text-f14 text-navy-40 text-center py-2">GPS 신호 확인 중...</p>
+          <p className="text-f14 text-navy-70 text-center py-2">GPS 신호 확인 중...</p>
         )}
         {pageState === 'starting' && (
-          <p className="text-f14 text-navy-40 text-center py-2">산책을 시작하는 중...</p>
+          <p className="text-f14 text-navy-70 text-center py-2">산책을 시작하는 중...</p>
         )}
         {gpsAccuracy !== null && !errorMessage && pageState === 'ready' && (
           <p className="text-f12 text-ok text-center">GPS 정확도: 약 {Math.round(gpsAccuracy)}m</p>
@@ -276,7 +276,7 @@ export default function WalkReadyPage() {
             ].join(' ')}
           >
             <p
-              className={`text-f14 ${locationErrorType === 'low-accuracy' ? 'text-navy-40' : 'text-err'}`}
+              className={`text-f14 ${locationErrorType === 'low-accuracy' ? 'text-navy-70' : 'text-err'}`}
             >
               {errorMessage}
             </p>
@@ -297,7 +297,7 @@ export default function WalkReadyPage() {
                 {errorMessage.split('\n').map((line, i) => (
                   <p
                     key={i}
-                    className={`text-f14 text-err ${i > 0 ? 'mt-1 text-f12 text-navy-40' : ''}`}
+                    className={`text-f14 text-err ${i > 0 ? 'mt-1 text-f12 text-navy-70' : ''}`}
                   >
                     {line}
                   </p>

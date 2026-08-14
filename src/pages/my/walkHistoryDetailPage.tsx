@@ -31,9 +31,9 @@ function StatCell({ label, value, unit }: { label: string; value: string; unit?:
     <div className="flex flex-col gap-0.5">
       <div className="flex items-baseline gap-0.5">
         <span className="text-f18 font-semibold text-navy tabular-nums leading-tight">{value}</span>
-        {unit && <span className="text-f12 text-navy-40">{unit}</span>}
+        {unit && <span className="text-f12 text-navy-70">{unit}</span>}
       </div>
-      <span className="text-f12 text-navy-40">{label}</span>
+      <span className="text-f12 text-navy-70">{label}</span>
     </div>
   )
 }
@@ -140,7 +140,7 @@ export default function WalkHistoryDetailPage() {
 
       <div className="flex-1 overflow-y-auto pb-8">
         <div className="px-6 mb-3">
-          <p className="text-f12 text-navy-40 mb-2">
+          <p className="text-f12 text-navy-70 mb-2">
             {formatDetailDate(detail.startedAt, detail.endedAt)}
           </p>
           <div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export default function WalkHistoryDetailPage() {
           >
             {(detail.stats.distanceMeters / 1000).toFixed(2)}
           </p>
-          <p className="text-f13 text-navy-40 mt-1">킬로미터</p>
+          <p className="text-f13 text-navy-70 mt-1">킬로미터</p>
         </div>
 
         <div className="px-6 mb-6">
@@ -193,17 +193,17 @@ export default function WalkHistoryDetailPage() {
             {territory ? (
               <div className="bg-navy-5 rounded-xl px-5 py-4 flex items-center justify-between">
                 <div>
-                  <p className="text-f12 text-navy-40 mb-0.5">획득 영토</p>
+                  <p className="text-f12 text-navy-70 mb-0.5">획득 영토</p>
                   <p className="text-f18 font-semibold text-navy">
                     {formatTerritory(territory.areaSquareMeters)}
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-f12 text-navy-40 mb-0.5">현재 상태</p>
+                  <p className="text-f12 text-navy-70 mb-0.5">현재 상태</p>
                   <p
                     className={[
                       'text-f14 font-medium',
-                      territory.status === 'ACTIVE' ? 'text-navy' : 'text-navy-40',
+                      territory.status === 'ACTIVE' ? 'text-navy' : 'text-navy-70',
                     ].join(' ')}
                   >
                     {territory.status === 'ACTIVE' ? '보유 중' : '점령됨'}
@@ -211,7 +211,7 @@ export default function WalkHistoryDetailPage() {
                 </div>
               </div>
             ) : (
-              <p className="text-f13 text-navy-40">영토 정보를 불러오지 못했습니다.</p>
+              <p className="text-f13 text-navy-70">영토 정보를 불러오지 못했습니다.</p>
             )}
           </div>
         )}
@@ -229,7 +229,7 @@ export default function WalkHistoryDetailPage() {
             />
           ) : (
             <div className="h-full bg-navy-8 flex items-center justify-center">
-              <p className="text-f13 text-navy-40">경로 데이터가 없습니다.</p>
+              <p className="text-f13 text-navy-70">경로 데이터가 없습니다.</p>
             </div>
           )}
         </div>

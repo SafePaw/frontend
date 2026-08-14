@@ -247,7 +247,7 @@ export default function HomeMap() {
   if (mapError) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-navy-8">
-        <p className="text-f16 text-navy-40 text-center px-6">{mapError}</p>
+        <p className="text-f16 text-navy-70 text-center px-6">{mapError}</p>
       </div>
     )
   }
@@ -269,7 +269,7 @@ export default function HomeMap() {
 
       {gpsError && (
         <div className="absolute bottom-20 left-4 right-4 bg-white rounded-xl px-4 py-3 shadow-md">
-          <p className="text-f12 text-navy-40 text-center">{gpsError}</p>
+          <p className="text-f12 text-navy-70 text-center">{gpsError}</p>
         </div>
       )}
     </div>

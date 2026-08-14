@@ -149,7 +149,7 @@ export default function MyPage() {
 
       <div className="flex-1 overflow-y-auto px-6 pb-24 space-y-5">
         <div className="bg-navy-8 rounded-xl px-5 py-5 space-y-3 border border-navy-15 shadow-sm">
-          <p className="text-f12 font-medium text-navy-40">계정 정보</p>
+          <p className="text-f12 font-medium text-navy-70">계정 정보</p>
           {isEditingNickname ? (
             <div className="space-y-2">
               <input
@@ -160,7 +160,7 @@ export default function MyPage() {
                 className="w-full rounded-md px-4 py-3 bg-cream text-f16 text-navy outline-none focus:ring-2 focus:ring-navy-15"
                 autoFocus
               />
-              <p className={`text-f12 ${trimmedNickname.length < 2 ? 'text-err' : 'text-navy-40'}`}>
+              <p className={`text-f12 ${trimmedNickname.length < 2 ? 'text-err' : 'text-navy-70'}`}>
                 {trimmedNickname.length < 2
                   ? '최소 2자 이상 입력해주세요'
                   : `${trimmedNickname.length}/20`}
@@ -189,13 +189,13 @@ export default function MyPage() {
           ) : (
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-f12 text-navy-40">안녕하세요,</p>
+                <p className="text-f12 text-navy-70">안녕하세요,</p>
                 <p className="text-f20 font-semibold text-navy">{me.nickname}님</p>
-                {me.email && <p className="text-f12 text-navy-40 mt-0.5">{me.email}</p>}
+                {me.email && <p className="text-f12 text-navy-70 mt-0.5">{me.email}</p>}
               </div>
               <button
                 onClick={() => setIsEditingNickname(true)}
-                className="text-f12 text-navy-40 border border-navy-15 rounded-pill px-3 py-1 flex-shrink-0 mt-1"
+                className="text-f12 text-navy-70 border border-navy-15 rounded-pill px-3 py-1 flex-shrink-0 mt-1"
               >
                 수정
               </button>
@@ -212,7 +212,7 @@ export default function MyPage() {
           {me.dogs.length === 0 ? (
             <div className="bg-navy-5 rounded-xl px-5 py-8 flex flex-col items-center gap-3">
               <img src={pawImg} alt="" className="w-10 h-10" />
-              <p className="text-f16 text-navy-40">아직 등록된 강아지가 없어요</p>
+              <p className="text-f16 text-navy-70">아직 등록된 강아지가 없어요</p>
               <Button variant="ghost" size="sm" onClick={() => navigate(ROUTES.DOGS.REGISTRATION)}>
                 강아지 등록하기
               </Button>
@@ -236,9 +236,9 @@ export default function MyPage() {
                       {displayName ? (
                         <p className="text-f16 font-semibold text-navy truncate">{displayName}</p>
                       ) : (
-                        <p className="text-f16 italic text-navy-40 truncate">이름을 등록해주세요</p>
+                        <p className="text-f16 italic text-navy-70 truncate">이름을 등록해주세요</p>
                       )}
-                      <p className="text-f12 text-navy-40 mt-0.5 truncate">
+                      <p className="text-f12 text-navy-70 mt-0.5 truncate">
                         {genderLabel} · {rankLabel}
                         {hasXp ? ` · XP ${dog.totalXp.toLocaleString()}` : ''}
                       </p>
@@ -248,7 +248,7 @@ export default function MyPage() {
                           style={{ backgroundColor: dog.territoryColor }}
                           aria-hidden="true"
                         />
-                        <span className="text-f8 text-navy-40">영토 색상</span>
+                        <span className="text-f8 text-navy-70">영토 색상</span>
                       </div>
                     </div>
                     <span className="text-navy-70 text-f16 flex-shrink-0" aria-hidden="true">
@@ -293,7 +293,7 @@ export default function MyPage() {
             </button>
           </div>
           {comingSoonMessage && (
-            <p className="text-f12 text-navy-40 text-center py-1">{comingSoonMessage}</p>
+            <p className="text-f12 text-navy-70 text-center py-1">{comingSoonMessage}</p>
           )}
         </div>
 
@@ -312,7 +312,7 @@ export default function MyPage() {
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <button
               onClick={showComingSoon}
-              className="text-f12 text-navy-40 active:opacity-70 transition-opacity"
+              className="text-f12 text-navy-70 active:opacity-70 transition-opacity"
             >
               개인정보처리방침
             </button>
@@ -321,7 +321,7 @@ export default function MyPage() {
             </span>
             <button
               onClick={showComingSoon}
-              className="text-f12 text-navy-40 active:opacity-70 transition-opacity"
+              className="text-f12 text-navy-70 active:opacity-70 transition-opacity"
             >
               이용약관
             </button>
@@ -330,12 +330,12 @@ export default function MyPage() {
             </span>
             <button
               onClick={showComingSoon}
-              className="text-f12 text-navy-40 active:opacity-70 transition-opacity"
+              className="text-f12 text-navy-70 active:opacity-70 transition-opacity"
             >
               위치정보 이용약관
             </button>
           </div>
-          <p className="text-f12 text-navy-40 text-center">v{APP_VERSION}</p>
+          <p className="text-f12 text-navy-70 text-center">v{APP_VERSION}</p>
         </div>
       </div>
       <BottomNav />

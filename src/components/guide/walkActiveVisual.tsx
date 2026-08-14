@@ -84,7 +84,7 @@ function WalkControlsVisual() {
           y={25}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="10"
           fontFamily={font}
           fontWeight="500"
@@ -134,7 +134,7 @@ function WalkControlsVisual() {
           y={statLabelY}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="10"
           fontFamily={font}
           fontWeight="300"
@@ -158,7 +158,7 @@ function WalkControlsVisual() {
           y={statLabelY}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="10"
           fontFamily={font}
           fontWeight="300"
@@ -183,7 +183,7 @@ function WalkControlsVisual() {
           y={statLabelY}
           textAnchor="start"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="10"
           fontFamily={font}
           fontWeight="300"
@@ -453,7 +453,7 @@ function WalkStatsVisual() {
         y={31}
         textAnchor="middle"
         dominantBaseline="middle"
-        fill="#8D9BB3"
+        fill="#4E5f7A"
         fontSize="13"
         fontFamily={font}
         fontWeight="300"
@@ -565,7 +565,7 @@ function WalkStatsVisual() {
           y={sheetY + 145}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="16"
           fontFamily={font}
           fontWeight="400"
@@ -619,7 +619,7 @@ function WalkTerritoryVisual() {
           y={241}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="11"
           fontFamily="system-ui, sans-serif"
         >

@@ -64,13 +64,13 @@ export default function DogListPage() {
         </button>
         <h1 className="text-f20 font-semibold text-navy">강아지 프로필</h1>
       </div>
-      <p className="px-6 pb-6 text-f12 text-navy-40">최대 {MAX_DOGS}마리까지 등록 가능</p>
+      <p className="px-6 pb-6 text-f12 text-navy-70">최대 {MAX_DOGS}마리까지 등록 가능</p>
 
       <div className="flex-1 overflow-y-auto px-6 pb-6">
         {dogs.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full gap-4 pb-20">
             <img src={pawImg} alt="" className="w-10 h-10" />
-            <p className="text-f16 text-navy-40">아직 등록된 강아지가 없어요</p>
+            <p className="text-f16 text-navy-70">아직 등록된 강아지가 없어요</p>
             <Button variant="fill" onClick={() => navigate(ROUTES.DOGS.REGISTRATION)}>
               강아지 등록하기
             </Button>
@@ -96,7 +96,7 @@ export default function DogListPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-f16 font-semibold text-navy">{dog.name}</p>
                   </div>
-                  <p className="text-f12 text-navy-40 mt-0.5">{formatDogInfo(dog)}</p>
+                  <p className="text-f12 text-navy-70 mt-0.5">{formatDogInfo(dog)}</p>
                 </div>
 
                 <button

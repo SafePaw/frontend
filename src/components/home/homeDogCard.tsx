@@ -53,7 +53,7 @@ export default function HomeDogCard({
       <div className="flex items-center justify-between px-5 py-4 gap-3">
         <div className="min-w-0">
           <p className="text-f16 font-semibold text-navy">산책 정보 확인 중...</p>
-          <p className="text-f12 text-navy-40 mt-0.5">잠시만 기다려 주세요</p>
+          <p className="text-f12 text-navy-70 mt-0.5">잠시만 기다려 주세요</p>
         </div>
         <div className="w-7 h-7 rounded-full border-2 border-navy-15 border-t-navy animate-spin flex-shrink-0" />
       </div>
@@ -66,7 +66,7 @@ export default function HomeDogCard({
       <div className="flex items-center justify-between px-5 py-4 gap-3">
         <div className="min-w-0">
           <p className="text-f16 font-semibold text-navy">산책 정보를 불러오지 못했어요</p>
-          <p className="text-f12 text-navy-40 mt-0.5">진행 중인 산책이 있을 수 있습니다</p>
+          <p className="text-f12 text-navy-70 mt-0.5">진행 중인 산책이 있을 수 있습니다</p>
         </div>
         <Button variant="ghost" size="sm" onClick={onRetryActiveWalk}>
           다시 시도
@@ -106,7 +106,7 @@ export default function HomeDogCard({
       return (
         <div className="px-5 py-4 space-y-3">
           <p className="text-f16 font-semibold text-navy">산책을 종료할까요?</p>
-          <p className="text-f12 text-navy-40">종료하면 서버에 기록된 경로로 결과를 계산합니다.</p>
+          <p className="text-f12 text-navy-70">종료하면 서버에 기록된 경로로 결과를 계산합니다.</p>
           {finishError && <p className="text-f12 text-err">{finishError}</p>}
           <div className="flex flex-col gap-2">
             <Button
@@ -133,7 +133,7 @@ export default function HomeDogCard({
                 setConfirmFinish(false)
                 onClearFinishError()
               }}
-              className="text-f12 text-navy-40 py-1 disabled:opacity-40"
+              className="text-f12 text-navy-70 py-1 disabled:opacity-40"
             >
               계속 산책하기
             </button>
@@ -145,11 +145,11 @@ export default function HomeDogCard({
     return (
       <div className="flex items-center gap-3 px-5 py-4">
         <div className="flex-1 min-w-0">
-          <p className={`text-f12 font-medium mb-0.5 ${isOngoing ? 'text-ok' : 'text-navy-40'}`}>
+          <p className={`text-f12 font-medium mb-0.5 ${isOngoing ? 'text-ok' : 'text-navy-70'}`}>
             {statusLabel}
           </p>
           <p className="text-f16 font-semibold text-navy truncate">{activeWalk.dogName}</p>
-          <p className="text-f12 text-navy-40">{formatStartTime(activeWalk.startedAt)}</p>
+          <p className="text-f12 text-navy-70">{formatStartTime(activeWalk.startedAt)}</p>
         </div>
         <div className="flex flex-col gap-2 flex-shrink-0">
           <Button
@@ -173,7 +173,7 @@ export default function HomeDogCard({
       <div className="flex items-center justify-between px-5 py-4 gap-3">
         <div className="min-w-0">
           <p className="text-f16 font-semibold text-navy">등록된 강아지가 없어요</p>
-          <p className="text-f12 text-navy-40 mt-0.5">강아지를 등록하고 산책을 시작해 보세요</p>
+          <p className="text-f12 text-navy-70 mt-0.5">강아지를 등록하고 산책을 시작해 보세요</p>
         </div>
         <Button variant="fill" size="sm" onClick={() => navigate(ROUTES.DOGS.REGISTRATION)}>
           강아지 등록하기
@@ -226,7 +226,7 @@ export default function HomeDogCard({
 
       <div className="flex-1 min-w-0">
         <p className="text-f16 font-semibold text-navy truncate">{selectedDog?.name ?? '강아지'}</p>
-        {canCycle && <p className="text-f12 text-navy-40">탭하여 변경</p>}
+        {canCycle && <p className="text-f12 text-navy-70">탭하여 변경</p>}
       </div>
 
       <Button variant="fill" size="md" onClick={() => navigate(ROUTES.WALK.READY)}>

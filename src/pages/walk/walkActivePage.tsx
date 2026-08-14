@@ -198,7 +198,7 @@ export default function WalkActivePage() {
   if (recoveryState === 'failed') {
     return (
       <div className="flex flex-col h-full items-center justify-center bg-cream gap-4 px-6">
-        <p className="text-f16 text-navy-40 text-center">진행 중인 산책을 확인하지 못했습니다</p>
+        <p className="text-f16 text-navy-70 text-center">진행 중인 산책을 확인하지 못했습니다</p>
         <Button variant="ghost" size="md" onClick={() => navigate(ROUTES.HOME, { replace: true })}>
           홈으로 돌아가기
         </Button>
@@ -218,7 +218,7 @@ export default function WalkActivePage() {
         <div className="flex items-center gap-3">
           <h1 className="text-f20 font-semibold text-navy">산책 중</h1>
           {isPaused ? (
-            <span className="px-3 py-1 rounded-pill bg-navy-8 text-f12 text-navy-40 font-medium">
+            <span className="px-3 py-1 rounded-pill bg-navy-8 text-f12 text-navy-70 font-medium">
               ⏸ 일시정지
             </span>
           ) : (
@@ -239,7 +239,7 @@ export default function WalkActivePage() {
       <WalkErrorBanner message={displayError} onDismiss={() => setError(null)} />
 
       {!isTracking && !isPaused && (
-        <p className="text-center text-f12 text-navy-40 pb-1">GPS 신호 대기 중...</p>
+        <p className="text-center text-f12 text-navy-70 pb-1">GPS 신호 대기 중...</p>
       )}
 
       <div className="flex-1 mx-4 mb-2 rounded-xl overflow-hidden">

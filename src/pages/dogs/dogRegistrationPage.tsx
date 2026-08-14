@@ -164,7 +164,7 @@ export default function DogRegistrationPage() {
             <button
               type="button"
               onClick={() => setIsActionSheetOpen(true)}
-              className="w-28 h-28 rounded-full border-2 border-dashed border-navy-40 bg-navy-5 overflow-hidden flex flex-col items-center justify-center gap-1 active:opacity-70 transition-opacity"
+              className="w-28 h-28 rounded-full border-2 border-dashed border-navy-70 bg-navy-5 overflow-hidden flex flex-col items-center justify-center gap-1 active:opacity-70 transition-opacity"
               aria-label="마커 이미지 선택"
             >
               {isUploading ? (
@@ -176,7 +176,7 @@ export default function DogRegistrationPage() {
                   className="w-full h-full object-cover"
                 />
               ) : markerStorageKey ? (
-                <span className="text-f12 text-navy-40 text-center leading-tight px-2">
+                <span className="text-f12 text-navy-70 text-center leading-tight px-2">
                   업로드
                   <br />
                   완료 ✓
@@ -186,7 +186,7 @@ export default function DogRegistrationPage() {
                   <span className="text-2xl" aria-hidden="true">
                     📷
                   </span>
-                  <span className="text-f12 text-navy-40">사진 추가</span>
+                  <span className="text-f12 text-navy-70">사진 추가</span>
                 </>
               )}
             </button>
@@ -223,7 +223,7 @@ export default function DogRegistrationPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="강아지 이름"
-            className="w-full rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-40 outline-none focus:ring-2 focus:ring-navy-15"
+            className="w-full rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-70 outline-none focus:ring-2 focus:ring-navy-15"
           />
         </div>
 
@@ -238,9 +238,9 @@ export default function DogRegistrationPage() {
             {breedDisplayText ? (
               <span className="text-navy">{breedDisplayText}</span>
             ) : (
-              <span className="text-navy-40">견종 선택</span>
+              <span className="text-navy-70">견종 선택</span>
             )}
-            <span className="text-navy-40 text-f12">▾</span>
+            <span className="text-navy-70 text-f12">▾</span>
           </button>
           {selectedBreed?.name_en === 'Other' && (
             <input
@@ -248,7 +248,7 @@ export default function DogRegistrationPage() {
               value={customBreed}
               onChange={(e) => setCustomBreed(e.target.value)}
               placeholder="견종을 직접 입력해주세요"
-              className="mt-2 w-full rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-40 outline-none focus:ring-2 focus:ring-navy-15"
+              className="mt-2 w-full rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-70 outline-none focus:ring-2 focus:ring-navy-15"
             />
           )}
         </div>
@@ -286,7 +286,7 @@ export default function DogRegistrationPage() {
               value={age}
               onChange={(e) => setAge(e.target.value.replace(/[^0-9]/g, ''))}
               placeholder="만 나이"
-              className="flex-1 min-w-0 rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-40 outline-none focus:ring-2 focus:ring-navy-15"
+              className="flex-1 min-w-0 rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-70 outline-none focus:ring-2 focus:ring-navy-15"
             />
             <input
               type="text"
@@ -299,7 +299,7 @@ export default function DogRegistrationPage() {
                 setWeightKg(rest.length > 0 ? `${integer}.${rest.join('')}` : integer)
               }}
               placeholder="kg"
-              className="flex-1 min-w-0 rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-40 outline-none focus:ring-2 focus:ring-navy-15"
+              className="flex-1 min-w-0 rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-70 outline-none focus:ring-2 focus:ring-navy-15"
             />
           </div>
         </div>
@@ -350,7 +350,7 @@ export default function DogRegistrationPage() {
         >
           <div className="bg-cream rounded-t-xl" onClick={(e) => e.stopPropagation()}>
             <div className="w-10 h-1 rounded-full bg-navy-15 mx-auto mt-3 mb-4" />
-            <p className="px-6 pb-2 text-f12 font-medium text-navy-40">마커 이미지 선택</p>
+            <p className="px-6 pb-2 text-f12 font-medium text-navy-70">마커 이미지 선택</p>
             <button
               className="w-full px-6 py-4 text-left text-f16 text-navy font-medium border-t border-navy-8 active:bg-navy-5"
               onClick={handleSelectPreset}
@@ -364,7 +364,7 @@ export default function DogRegistrationPage() {
               앨범에서 업로드
             </button>
             <button
-              className="w-full px-6 py-4 text-left text-f16 text-navy-40 border-t border-navy-8 active:bg-navy-5"
+              className="w-full px-6 py-4 text-left text-f16 text-navy-70 border-t border-navy-8 active:bg-navy-5"
               onClick={() => setIsActionSheetOpen(false)}
             >
               취소

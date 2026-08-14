@@ -104,7 +104,7 @@ export default function TerritoryCard({
                   <p className="text-f12 text-err">{formatDate(detail.conqueredAt)} 빼앗김</p>
                 )}
                 {detail.conqueredBy && (
-                  <p className="text-f12 text-navy-40">{detail.conqueredBy.dogName}에게 빼앗김</p>
+                  <p className="text-f12 text-navy-70">{detail.conqueredBy.dogName}에게 빼앗김</p>
                 )}
               </>
             )}
@@ -115,7 +115,7 @@ export default function TerritoryCard({
         <button
           onClick={onClose}
           aria-label="닫기"
-          className="w-7 h-7 flex items-center justify-center text-navy-40 hover:text-navy flex-shrink-0 active:opacity-70 transition-opacity"
+          className="w-7 h-7 flex items-center justify-center text-navy-70 hover:text-navy flex-shrink-0 active:opacity-70 transition-opacity"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
             <path

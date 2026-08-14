@@ -29,6 +29,9 @@ const XP_SOURCE_LABELS: Record<string, string> = {
   TERRITORY_CLAIM: '영토 획득',
   TERRITORY_CLAIMED: '영토 획득',
   TERRITORY_BONUS: '영토 스페셜 리워드',
+  FIRST_CLAIM_BONUS: '첫 영토 보너스',
+  WEEKLY_CHALLENGE: '주간 챌린지',
+  BONUS: '보너스',
   LOOP: '순환 스페셜 리워드',
   LOOP_BONUS: '순환 스페셜 리워드',
   LEVEL_UP: '레벨업 스페셜 리워드',
@@ -140,7 +143,7 @@ export default function WalkResultPage() {
           </div>
         ) : fetchError ? (
           <div className="h-full bg-navy-8 flex items-center justify-center px-4">
-            <p className="text-f13 text-navy-40 text-center">{fetchError}</p>
+            <p className="text-f13 text-navy-70 text-center">{fetchError}</p>
           </div>
         ) : polylineCoords && polylineCoords.length > 0 ? (
           <WalkMap
@@ -153,7 +156,7 @@ export default function WalkResultPage() {
           />
         ) : (
           <div className="h-full bg-navy-8 flex items-center justify-center">
-            <p className="text-f13 text-navy-40">경로 데이터가 없습니다.</p>
+            <p className="text-f13 text-navy-70">경로 데이터가 없습니다.</p>
           </div>
         )}
       </div>
@@ -208,7 +211,7 @@ export default function WalkResultPage() {
               {Math.round(finishResult.territory.areaSquareMeters).toLocaleString()} m²
             </p>
             {finishResult.intrusions.length > 0 && (
-              <p className="text-f13 text-navy-40">{finishResult.intrusions.length}개 영토 침입</p>
+              <p className="text-f13 text-navy-70">{finishResult.intrusions.length}개 영토 침입</p>
             )}
           </div>
         )}
@@ -216,13 +219,13 @@ export default function WalkResultPage() {
         {/* 영토 인정 실패 사유 */}
         {finishResult?.ineligibleMessage && (
           <div className="bg-navy-8 rounded-xl px-5 py-3">
-            <p className="text-f13 text-navy-40">{finishResult.ineligibleMessage}</p>
+            <p className="text-f13 text-navy-70">{finishResult.ineligibleMessage}</p>
           </div>
         )}
 
         {/* 새로고침 */}
         {!finishResult && (
-          <p className="text-f12 text-navy-40 text-center">
+          <p className="text-f12 text-navy-70 text-center">
             페이지를 새로 고친 경우 XP·영토 상세는 표시되지 않습니다.
           </p>
         )}

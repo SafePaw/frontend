@@ -106,7 +106,7 @@ export default function OAuthCallbackPage() {
       <div className="text-center mt-2">
         <h2 className="text-f20 font-medium text-navy tracking-[-0.4px]">처리 중</h2>
         <p className="mt-1 text-f12 font-light text-navy-70">정보를 불러오는 중입니다</p>
-        <p className="mt-0.5 text-f12 font-light text-navy-40">잠시만 기다려주세요</p>
+        <p className="mt-0.5 text-f12 font-light text-navy-70">잠시만 기다려주세요</p>
       </div>
     </div>
   )

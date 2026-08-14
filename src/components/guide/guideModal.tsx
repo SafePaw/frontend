@@ -118,7 +118,7 @@ export default function GuideModal({
           {dismissCta && (
             <button
               onClick={onDismiss}
-              className="w-full text-f12 font-light text-navy-40 py-3 mt-1 active:opacity-70 transition-opacity"
+              className="w-full text-f12 font-light text-navy-70 py-3 mt-1 active:opacity-70 transition-opacity"
               aria-label={dismissCta}
             >
               {dismissCta}

@@ -267,7 +267,7 @@ export default function WalkMap({
   if (mapError) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-navy-8 rounded-xl">
-        <p className="text-f14 text-navy-40 text-center px-4">{mapError}</p>
+        <p className="text-f14 text-navy-70 text-center px-4">{mapError}</p>
       </div>
     )
   }
