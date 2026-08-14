@@ -20,7 +20,7 @@ export default function SplashPage() {
 
         <div className="text-center animate-fade-up" style={{ animationDelay: '0.3s' }}>
           <h1 className="text-f24 font-semibold text-navy tracking-[-0.5px]">SafePaw</h1>
-          <p className="mt-2 text-f12 font-light text-navy-40">강아지와 함께, 우리 동네 땅따먹기</p>
+          <p className="mt-2 text-f12 font-light text-navy-70">강아지와 함께, 우리 동네 땅따먹기</p>
         </div>
       </div>
 
@@ -31,7 +31,7 @@ export default function SplashPage() {
         <Button variant="fill" size="lg" fullWidth onClick={() => navigate(ROUTES.LOGIN)}>
           시작하기
         </Button>
-        <button className="text-f12 font-light text-navy-40" onClick={() => navigate(ROUTES.LOGIN)}>
+        <button className="text-f12 font-light text-navy-70" onClick={() => navigate(ROUTES.LOGIN)}>
           이미 계정이 있어요
         </button>
       </div>

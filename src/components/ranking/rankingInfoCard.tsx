@@ -10,7 +10,7 @@ export default function RankingInfoCard({ onDismiss }: RankingInfoCardProps) {
         height="16"
         viewBox="0 0 16 16"
         fill="currentColor"
-        className="flex-shrink-0 mt-0.5 text-navy-40"
+        className="flex-shrink-0 mt-0.5 text-navy-70"
         aria-hidden="true"
       >
         <path
@@ -30,7 +30,7 @@ export default function RankingInfoCard({ onDismiss }: RankingInfoCardProps) {
         type="button"
         aria-label="안내 닫기"
         onClick={onDismiss}
-        className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-navy-40 hover:text-navy hover:bg-navy-8 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+        className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded text-navy-70 hover:text-navy hover:bg-navy-8 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
       >
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
           <line

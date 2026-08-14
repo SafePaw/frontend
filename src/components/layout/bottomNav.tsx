@@ -28,7 +28,7 @@ export default function BottomNav() {
           className={`w-1.5 h-1.5 rounded-full mb-0.5 ${isMap ? 'bg-navy' : 'bg-transparent'}`}
         />
         <img src={mapIcon} alt="지도" className="w-6 h-6 object-contain" />
-        <span className={`text-f12 ${isMap ? 'font-semibold text-navy' : 'text-navy-40'}`}>
+        <span className={`text-f12 ${isMap ? 'font-semibold text-navy' : 'text-navy-70'}`}>
           지도
         </span>
       </button>
@@ -42,7 +42,7 @@ export default function BottomNav() {
           className={`w-1.5 h-1.5 rounded-full mb-0.5 ${isTerritory ? 'bg-navy' : 'bg-transparent'}`}
         />
         <img src={flagIcon} alt="영토" className="w-6 h-6 object-contain" />
-        <span className={`text-f12 ${isTerritory ? 'font-semibold text-navy' : 'text-navy-40'}`}>
+        <span className={`text-f12 ${isTerritory ? 'font-semibold text-navy' : 'text-navy-70'}`}>
           영토
         </span>
       </button>
@@ -57,7 +57,7 @@ export default function BottomNav() {
           className={`w-1.5 h-1.5 rounded-full mb-0.5 ${isRanking ? 'bg-navy' : 'bg-transparent'}`}
         />
         <img src={rankingIcon} alt="랭킹" className="w-6 h-6 object-contain" />
-        <span className={`text-f12 ${isRanking ? 'font-semibold text-navy' : 'text-navy-40'}`}>
+        <span className={`text-f12 ${isRanking ? 'font-semibold text-navy' : 'text-navy-70'}`}>
           랭킹
         </span>
       </button>
@@ -71,7 +71,7 @@ export default function BottomNav() {
           className={`w-1.5 h-1.5 rounded-full mb-0.5 ${isMy ? 'bg-navy' : 'bg-transparent'}`}
         />
         <img src={pawIcon} alt="마이" className="w-6 h-6 object-contain" />
-        <span className={`text-f12 ${isMy ? 'font-semibold text-navy' : 'text-navy-40'}`}>
+        <span className={`text-f12 ${isMy ? 'font-semibold text-navy' : 'text-navy-70'}`}>
           마이
         </span>
       </button>

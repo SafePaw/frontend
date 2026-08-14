@@ -30,8 +30,8 @@ interface WalkStatsProps {
 }
 
 export default function WalkStats({ stats, isPaused }: WalkStatsProps) {
-  const labelClass = isPaused ? 'text-navy-15' : 'text-navy-40'
-  const valueClass = isPaused ? 'text-navy-40' : 'text-navy'
+  const labelClass = isPaused ? 'text-navy-15' : 'text-navy-70'
+  const valueClass = isPaused ? 'text-navy-70' : 'text-navy'
 
   return (
     <div className="flex px-4 pt-5 pb-4">

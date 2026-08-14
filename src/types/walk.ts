@@ -142,3 +142,32 @@ export interface ActiveWalkItem {
 export interface ActiveWalksResponse {
   walks: ActiveWalkItem[]
 }
+
+export type WalkType = 'TERRITORY' | 'NORMAL'
+
+export interface WalkHistoryTerritory {
+  id: number
+  areaSquareMeters: number
+  status: 'ACTIVE' | 'CONQUERED'
+}
+
+export interface WalkHistoryItem {
+  walkId: number
+  dogId: number
+  dogName: string
+  status: WalkServerStatus
+  walkType: WalkType
+  startedAt: string
+  endedAt: string | null
+  stats: WalkStats
+  territory: WalkHistoryTerritory | null
+}
+
+export interface WalkHistoryPage {
+  content: WalkHistoryItem[]
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+  hasNext: boolean
+}

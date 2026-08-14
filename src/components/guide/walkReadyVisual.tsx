@@ -170,7 +170,7 @@ function LoopRuleVisual() {
           y={cy + 1}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#8D9BB3"
+          fill="#4E5f7A"
           fontSize="11"
           fontFamily="system-ui, sans-serif"
         >

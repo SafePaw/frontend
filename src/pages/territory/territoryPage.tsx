@@ -129,7 +129,7 @@ export default function TerritoryPage() {
       {fetchState === 'success' && territories.length === 0 && (
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-cream/90 rounded-xl px-6 py-5 text-center shadow-md max-w-xs">
           <p className="text-f16 text-navy font-semibold">아직 획득한 영토가 없어요.</p>
-          <p className="text-f12 text-navy-40 mt-1">산책으로 새로운 영토를 만들어 보세요.</p>
+          <p className="text-f12 text-navy-70 mt-1">산책으로 새로운 영토를 만들어 보세요.</p>
         </div>
       )}
 

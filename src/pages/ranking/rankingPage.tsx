@@ -201,7 +201,7 @@ export default function RankingPage() {
 
         {fetchState === 'success' && rankingItems.length === 0 && (
           <div className="flex items-center justify-center h-64 px-6">
-            <p className="text-f16 text-navy-40 text-center">아직 랭킹 데이터가 없습니다.</p>
+            <p className="text-f16 text-navy-70 text-center">아직 랭킹 데이터가 없습니다.</p>
           </div>
         )}
 

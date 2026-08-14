@@ -273,7 +273,7 @@ export default function TerritoryMap({
   if (mapError) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-navy-8">
-        <p className="text-f16 text-navy-40 text-center px-6">{mapError}</p>
+        <p className="text-f16 text-navy-70 text-center px-6">{mapError}</p>
       </div>
     )
   }

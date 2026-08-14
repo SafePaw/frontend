@@ -40,7 +40,9 @@ export default function WalkMap({
   const [mapReady, setMapReady] = useState(false)
 
   const isResultMode = !!completedCoords
-  const initialCenterRef = useRef<[number, number]>(currentPosition ?? startPoint ?? [126.978, 37.566])
+  const initialCenterRef = useRef<[number, number]>(
+    currentPosition ?? startPoint ?? [126.978, 37.566],
+  )
 
   // 지도 초기화
   useEffect(() => {
@@ -114,7 +116,7 @@ export default function WalkMap({
         id: WALK_MAP_IDS.territoryOutlineLayer,
         type: 'line',
         source: WALK_MAP_IDS.territorySource,
-        paint: { 'line-color': ['get', 'color'], 'line-width': 2 },
+        paint: { 'line-color': ['get', 'color'], 'line-width': 1, 'line-opacity': 0.4 },
       })
 
       setMapReady(true)
@@ -239,12 +241,21 @@ export default function WalkMap({
     const map = mapRef.current
     if (!map) return
 
-    const bounds = coords.reduce(
+    let bounds = coords.reduce(
       (b, c) => b.extend(c),
       new mapboxgl.LngLatBounds(coords[0], coords[0]),
     )
+
+    if (territoryPolygon) {
+      for (const ring of territoryPolygon.coordinates) {
+        for (const coord of ring) {
+          bounds = bounds.extend(coord as [number, number])
+        }
+      }
+    }
+
     map.fitBounds(bounds, { padding: 48, maxZoom: 17 })
-  }, [completedCoords, isResultMode, mapReady])
+  }, [completedCoords, isResultMode, territoryPolygon, mapReady])
 
   const handleFollowMe = useCallback(() => {
     setFollowMode('following')
@@ -256,7 +267,7 @@ export default function WalkMap({
   if (mapError) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-navy-8 rounded-xl">
-        <p className="text-f14 text-navy-40 text-center px-4">{mapError}</p>
+        <p className="text-f14 text-navy-70 text-center px-4">{mapError}</p>
       </div>
     )
   }

@@ -109,14 +109,14 @@ export default function HomePage() {
             내 영토
           </span>
           <span
-            className="px-4 py-1.5 rounded-full text-navy-40 text-f12 select-none cursor-not-allowed"
+            className="px-4 py-1.5 rounded-full text-navy-70 text-f12 select-none cursor-not-allowed"
             aria-disabled="true"
             title="준비 중인 기능입니다"
           >
             크루
           </span>
           <span
-            className="px-4 py-1.5 rounded-full text-navy-40 text-f12 select-none cursor-not-allowed"
+            className="px-4 py-1.5 rounded-full text-navy-70 text-f12 select-none cursor-not-allowed"
             aria-disabled="true"
             title="준비 중인 기능입니다"
           >

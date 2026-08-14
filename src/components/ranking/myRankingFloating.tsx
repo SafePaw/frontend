@@ -39,7 +39,7 @@ export default function MyRankingFloating({
             className="w-full bg-navy text-cream rounded-xl px-4 py-3 flex items-center justify-between shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream active:opacity-80 transition-opacity"
           >
             <div className="text-left">
-              <p className="text-f12 text-navy-40" style={{ color: 'rgba(242,230,177,0.65)' }}>
+              <p className="text-f12 text-navy-70" style={{ color: 'rgba(242,230,177,0.65)' }}>
                 내 순위
               </p>
               <p className="text-f20 font-bold text-cream leading-tight mt-0.5">

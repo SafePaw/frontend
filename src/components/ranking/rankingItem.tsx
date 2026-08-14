@@ -49,7 +49,7 @@ export default function RankingItem({ item, isMe, innerRef }: RankingItemProps) 
                 ? 'text-gray-400'
                 : item.rank === 3
                   ? 'text-amber-600'
-                  : 'text-navy-40 font-medium'
+                  : 'text-navy-70 font-medium'
           }`}
         >
           {item.rank}
@@ -87,7 +87,7 @@ export default function RankingItem({ item, isMe, innerRef }: RankingItemProps) 
           )}
         </div>
         {rankBadgeLabel && (
-          <p className="text-f12 text-navy-40 mt-0.5 truncate">{rankBadgeLabel}</p>
+          <p className="text-f12 text-navy-70 mt-0.5 truncate">{rankBadgeLabel}</p>
         )}
       </div>
 
