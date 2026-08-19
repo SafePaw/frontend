@@ -12,18 +12,6 @@ import type {
   WalkHistoryPage,
 } from '../types/walk'
 
-function extractErrorCode(err: unknown): string {
-  if (
-    err &&
-    typeof err === 'object' &&
-    'response' in err &&
-    (err as { response?: { data?: ApiResponse<unknown> } }).response?.data?.error?.code
-  ) {
-    return (err as { response: { data: ApiResponse<unknown> } }).response.data.error!.code
-  }
-  return 'UNKNOWN_ERROR'
-}
-
 export async function startWalk(dogId: number): Promise<WalkStartResponse> {
   const res = await apiClient.post<ApiResponse<WalkStartResponse>>('/walks', { dogId })
   if (!res.data.success || !res.data.data) {
@@ -134,4 +122,4 @@ export async function getMyWalks(params?: {
   return res.data.data
 }
 
-export { extractErrorCode }
+export { extractErrorCode } from '../utils/apiError'

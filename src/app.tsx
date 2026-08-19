@@ -21,6 +21,7 @@ import WalkHistoryDetailPage from './pages/my/walkHistoryDetailPage'
 import DogListPage from './pages/dogs/dogListPage'
 import DogRegistrationPage from './pages/dogs/dogRegistrationPage'
 import DogDetailPage from './pages/dogs/dogDetailPage'
+import CrewPage from './pages/crew/crewPage'
 
 export default function App() {
   const initializeAuth = useAuthStore((state) => state.initializeAuth)
@@ -52,6 +53,7 @@ export default function App() {
           <Route path={ROUTES.DOGS.INDEX} element={<DogListPage />} />
           <Route path={ROUTES.DOGS.REGISTRATION} element={<DogRegistrationPage />} />
           <Route path={ROUTES.DOGS.DETAIL} element={<DogDetailPage />} />
+          <Route path={ROUTES.CREW.INDEX} element={<CrewPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
