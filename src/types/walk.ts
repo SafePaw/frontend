@@ -61,6 +61,13 @@ export interface GeoJsonPolygon {
   coordinates: [number, number][][]
 }
 
+export interface GeoJsonMultiPolygon {
+  type: 'MultiPolygon'
+  coordinates: [number, number][][][]
+}
+
+export type GeoJsonGeometry = GeoJsonPolygon | GeoJsonMultiPolygon
+
 export interface GeoJsonLineString {
   type: 'LineString'
   coordinates: [number, number][]
@@ -68,7 +75,7 @@ export interface GeoJsonLineString {
 
 export interface WalkFinishTerritoryPart {
   id: number
-  polygon: GeoJsonPolygon
+  polygon: GeoJsonGeometry
   areaSquareMeters: number
 }
 
@@ -76,8 +83,8 @@ export interface WalkFinishIntrusionPart {
   victimDogName: string
   overlapRatio: number
   victimTerritoryId: number
-  stolenPolygon: GeoJsonPolygon
-  victimRemainderPolygon: GeoJsonPolygon | null
+  stolenPolygon: GeoJsonGeometry
+  victimRemainderPolygon: GeoJsonGeometry | null
   victimRemainderAreaSquareMeters: number
   victimStatusAfter: 'ACTIVE' | 'CONQUERED'
 }

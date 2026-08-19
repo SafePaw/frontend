@@ -9,7 +9,6 @@ import Button from '../../components/ui/button'
 import BottomNav from '../../components/layout/bottomNav'
 import type { WalkHistoryItem } from '../../types/walk'
 import pawImg from '../../assets/paw.png'
-import flagImg from '../../assets/flag.png'
 
 type FilterTab = 'week' | 'month' | 'year' | 'all'
 
@@ -224,22 +223,21 @@ function ActivityCard({
   onClick: () => void
 }) {
   const isTerritory = item.walkType === 'TERRITORY'
+  const [imgError, setImgError] = useState(false)
   return (
     <button
       onClick={onClick}
       className="w-full flex items-center gap-3 py-4 border-b border-navy-8 text-left active:opacity-60 transition-opacity"
     >
       <div
-        className={[
-          'w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center',
-          isTerritory ? 'bg-navy' : 'bg-navy-8',
-        ].join(' ')}
+        className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-navy-8"
       >
-        {isTerritory ? (
-          <img src={flagImg} alt="" className="w-6 h-6" />
-        ) : (
-          <img src={markerSrc} alt="" className="w-8 h-8 object-contain" />
-        )}
+        <img
+          src={imgError ? DEFAULT_MARKER_IMAGE_SRC : markerSrc}
+          alt=""
+          className="w-8 h-8 object-contain"
+          onError={() => setImgError(true)}
+        />
       </div>
 
       <div className="flex-1 min-w-0">

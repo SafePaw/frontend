@@ -4,9 +4,12 @@ import WalkMap from '../../components/walk/walkMap'
 import { getWalkDetail } from '../../api/walks'
 import { getTerritoryDetail } from '../../api/territories'
 import { formatDuration, formatTerritory } from '../../utils/rankingFormat'
+import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
+import { resolveMarkerImage } from '../../utils/markerImage'
 import Button from '../../components/ui/button'
 import type { WalkDetailResponse } from '../../types/walk'
 import type { TerritoryDetail } from '../../types/territory'
+import dogCaloriesImg from '../../assets/dogCalories.png'
 
 function formatDetailDate(startedAt: string, endedAt: string | null): string {
   const start = new Date(startedAt)
@@ -26,10 +29,21 @@ function getHttpStatus(err: unknown): number | null {
   return (err as { response?: { status?: number } }).response?.status ?? null
 }
 
-function StatCell({ label, value, unit }: { label: string; value: string; unit?: string }) {
+function StatCell({
+  label,
+  value,
+  unit,
+  icon,
+}: {
+  label: string
+  value: string
+  unit?: string
+  icon?: string
+}) {
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex items-baseline gap-0.5">
+        {icon && <img src={icon} alt="" className="w-5 h-5 object-contain self-center" />}
         <span className="text-f18 font-semibold text-navy tabular-nums leading-tight">{value}</span>
         {unit && <span className="text-f12 text-navy-70">{unit}</span>}
       </div>
@@ -126,6 +140,18 @@ export default function WalkHistoryDetailPage() {
   const territoryPolygon = isTerritory ? (territory?.polygon ?? null) : null
   const territoryColor = territory?.dog.territoryColor
 
+  const dogMarkerPosition =
+    isTerritory && territory?.polygon ? computeGeometryCentroid(territory.polygon) : null
+
+  const dogMarkerSrc =
+    isTerritory && territory?.dog
+      ? resolveMarkerImage({
+          markerImageType: territory.dog.markerImageType,
+          markerImageValue: territory.dog.markerImageValue,
+          markerImageUrl: territory.dog.markerImageUrl,
+        })
+      : null
+
   return (
     <div className="flex flex-col h-full bg-cream">
       <div className="flex items-center px-6 pt-14 pb-2 flex-shrink-0">
@@ -176,15 +202,16 @@ export default function WalkHistoryDetailPage() {
               value={detail.stats.averageSpeedKmh.toFixed(1)}
               unit=" km/h"
             />
-            {detail.stats.caloriesKcal != null ? (
-              <StatCell
-                label="칼로리"
-                value={Math.round(detail.stats.caloriesKcal).toLocaleString()}
-                unit=" kcal"
-              />
-            ) : (
-              <StatCell label="포인트" value={detail.stats.pointCount.toLocaleString()} unit="개" />
-            )}
+            <StatCell
+              label="칼로리"
+              icon={dogCaloriesImg}
+              value={
+                detail.stats.caloriesKcal != null
+                  ? Math.round(detail.stats.caloriesKcal).toLocaleString()
+                  : '—'
+              }
+              unit={detail.stats.caloriesKcal != null ? ' kcal' : undefined}
+            />
           </div>
         </div>
 
@@ -226,6 +253,8 @@ export default function WalkHistoryDetailPage() {
               completedCoords={polylineCoords}
               territoryPolygon={territoryPolygon}
               territoryColor={territoryColor}
+              dogMarkerPosition={dogMarkerPosition}
+              dogMarkerSrc={dogMarkerSrc}
             />
           ) : (
             <div className="h-full bg-navy-8 flex items-center justify-center">

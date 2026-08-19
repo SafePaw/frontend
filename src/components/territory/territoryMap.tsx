@@ -3,7 +3,7 @@ import mapboxgl from 'mapbox-gl'
 import { MAPBOX_STYLE_URL } from '../../constants/walk'
 import { TERRITORY_MAP_IDS, TERRITORY_MAP_CONFIG } from '../../constants/territory'
 import type { TerritoryFeatureProperties } from '../../utils/territoryGeoJson'
-import { computePolygonCentroid } from '../../utils/territoryGeoJson'
+import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
 import type { TerritoryBoundsParams, TerritorySummary } from '../../types/territory'
 import { DEFAULT_MARKER_IMAGE_SRC, resolveMarkerImage } from '../../utils/markerImage'
 
@@ -246,8 +246,8 @@ export default function TerritoryMap({
     dogMarkersRef.current = []
 
     for (const territory of territories) {
-      if (!territory.polygon?.coordinates?.length) continue
-      const centroid = computePolygonCentroid(territory.polygon.coordinates)
+      if (!territory.polygon) continue
+      const centroid = computeGeometryCentroid(territory.polygon)
 
       const el = document.createElement('div')
       el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);flex-shrink:0;`

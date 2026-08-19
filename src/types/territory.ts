@@ -1,4 +1,5 @@
 import type { DogRank, MarkerImageType } from './dog'
+import type { GeoJsonPolygon, GeoJsonMultiPolygon } from './walk'
 
 export interface TerritoryBoundsParams {
   swLng: number
@@ -11,10 +12,7 @@ export type TerritoryStatus = 'ACTIVE' | 'CONQUERED'
 
 export type LngLatTuple = [number, number]
 
-export interface TerritoryPolygon {
-  type: 'Polygon'
-  coordinates: LngLatTuple[][]
-}
+export type TerritoryPolygon = GeoJsonPolygon | GeoJsonMultiPolygon
 
 export interface TerritoryDog {
   id: number
