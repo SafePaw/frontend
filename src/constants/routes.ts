@@ -44,5 +44,9 @@ export const ROUTES = {
     DETAIL_OF: (dogId: number | string) => `/dogs/${dogId}`,
   },
 
+  CREW: {
+    INDEX: '/crew',
+  },
+
   PROFILE: '/profile',
 } as const

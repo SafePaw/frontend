@@ -274,6 +274,15 @@ export default function MyPage() {
               </span>
             </button>
             <button
+              onClick={() => navigate(ROUTES.CREW.INDEX)}
+              className="w-full px-5 py-4 text-left text-f16 text-navy flex items-center justify-between active:opacity-70 transition-opacity"
+            >
+              <span>크루 관리</span>
+              <span className="text-navy-70" aria-hidden="true">
+                ›
+              </span>
+            </button>
+            <button
               onClick={() => navigate(ROUTES.MY.HISTORY)}
               className="w-full px-5 py-4 text-left text-f16 text-navy flex items-center justify-between active:opacity-70 transition-opacity"
             >
