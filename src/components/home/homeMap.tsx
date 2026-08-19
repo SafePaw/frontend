@@ -8,7 +8,7 @@ import { toTerritoryFeatureCollection } from '../../utils/territoryGeoJson'
 import type { TerritoryBoundsParams } from '../../types/territory'
 import pinImg from '../../assets/pin.png'
 import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
-import { computePolygonCentroid } from '../../utils/territoryGeoJson'
+import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
 
 type GeoPermission = 'granted' | 'denied' | 'prompt' | 'unsupported'
 
@@ -87,8 +87,8 @@ export default function HomeMap() {
         territoryMarkersRef.current.forEach((m) => m.remove())
         territoryMarkersRef.current = []
         for (const territory of data) {
-          if (!territory.isMine || !territory.polygon?.coordinates?.length) continue
-          const centroid = computePolygonCentroid(territory.polygon.coordinates)
+          if (!territory.isMine || !territory.polygon) continue
+          const centroid = computeGeometryCentroid(territory.polygon)
           const el = document.createElement('div')
           el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);`
           const img = document.createElement('img')

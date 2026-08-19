@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { WALK_MAP_IDS, MAPBOX_STYLE_URL } from '../../constants/walk'
-import type { GeoJsonPolygon } from '../../types/walk'
+import type { GeoJsonGeometry } from '../../types/walk'
 import pinImg from '../../assets/pin.png'
 
 const ROUTE_LINE_COLOR_ACTIVE = '#2A3244'
@@ -19,8 +19,10 @@ interface WalkMapProps {
   isPaused: boolean
   startPoint?: [number, number]
   completedCoords?: [number, number][]
-  territoryPolygon?: GeoJsonPolygon | null
+  territoryPolygon?: GeoJsonGeometry | null
   territoryColor?: string
+  dogMarkerPosition?: [number, number] | null
+  dogMarkerSrc?: string | null
 }
 
 export default function WalkMap({
@@ -31,10 +33,13 @@ export default function WalkMap({
   completedCoords,
   territoryPolygon,
   territoryColor,
+  dogMarkerPosition,
+  dogMarkerSrc,
 }: WalkMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<mapboxgl.Map | null>(null)
   const markerRef = useRef<mapboxgl.Marker | null>(null)
+  const dogMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const [followMode, setFollowMode] = useState<'following' | 'free'>('following')
   const [mapError, setMapError] = useState<string | null>(null)
   const [mapReady, setMapReady] = useState(false)
@@ -139,6 +144,8 @@ export default function WalkMap({
     return () => {
       marker.remove()
       markerRef.current = null
+      dogMarkerRef.current?.remove()
+      dogMarkerRef.current = null
       map.remove()
       mapRef.current = null
       setMapReady(false)
@@ -247,15 +254,47 @@ export default function WalkMap({
     )
 
     if (territoryPolygon) {
-      for (const ring of territoryPolygon.coordinates) {
-        for (const coord of ring) {
-          bounds = bounds.extend(coord as [number, number])
+      if (territoryPolygon.type === 'Polygon') {
+        for (const ring of territoryPolygon.coordinates) {
+          for (const coord of ring) bounds = bounds.extend(coord)
+        }
+      } else {
+        for (const poly of territoryPolygon.coordinates) {
+          for (const ring of poly) {
+            for (const coord of ring) bounds = bounds.extend(coord)
+          }
         }
       }
     }
 
     map.fitBounds(bounds, { padding: 48, maxZoom: 17 })
   }, [completedCoords, isResultMode, territoryPolygon, mapReady])
+
+  useEffect(() => {
+    if (!mapReady || !isResultMode || !dogMarkerPosition || !dogMarkerSrc) {
+      dogMarkerRef.current?.remove()
+      dogMarkerRef.current = null
+      return
+    }
+    const map = mapRef.current
+    if (!map) return
+
+    dogMarkerRef.current?.remove()
+
+    const el = document.createElement('div')
+    el.style.cssText =
+      'width:40px;height:40px;border-radius:50%;border:2px solid white;overflow:hidden;background:white;box-shadow:0 2px 6px rgba(0,0,0,0.25);'
+    const img = document.createElement('img')
+    img.src = dogMarkerSrc
+    img.alt = '내 강아지'
+    img.style.cssText = 'width:100%;height:100%;object-fit:contain;'
+    el.appendChild(img)
+
+    const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+      .setLngLat(dogMarkerPosition)
+      .addTo(map)
+    dogMarkerRef.current = marker
+  }, [mapReady, isResultMode, dogMarkerPosition, dogMarkerSrc])
 
   const handleFollowMe = useCallback(() => {
     setFollowMode('following')
