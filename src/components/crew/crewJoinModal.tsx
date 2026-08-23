@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { joinCrew } from '../../api/crews'
 import { extractErrorCode } from '../../utils/apiError'
 import type { CrewResponse } from '../../types/crew'
@@ -16,6 +17,7 @@ interface Props {
 }
 
 export default function CrewJoinModal({ onClose, onSuccess }: Props) {
+  const prefersReducedMotion = useReducedMotion()
   const [inviteCode, setInviteCode] = useState('')
   const [isJoining, setIsJoining] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,11 +41,18 @@ export default function CrewJoinModal({ onClose, onSuccess }: Props) {
   }
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       onClick={(e) => { if (e.target === e.currentTarget && !isJoining) onClose() }}
     >
-      <div className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10">
+      <motion.div
+        className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10"
+        initial={prefersReducedMotion ? false : { y: '100%' }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+      >
         <h2 className="text-f18 font-semibold text-navy mb-1">크루 가입</h2>
         <p className="text-f14 text-navy-70 mb-5">초대 코드를 입력해 크루에 가입하세요.</p>
 
@@ -74,7 +83,7 @@ export default function CrewJoinModal({ onClose, onSuccess }: Props) {
             취소
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

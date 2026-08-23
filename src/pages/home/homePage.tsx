@@ -103,28 +103,6 @@ export default function HomePage() {
         <HomeMap />
       </div>
 
-      <div className="absolute top-0 left-0 right-0 z-10 px-4 pt-14 pb-3 pointer-events-none">
-        <div className="inline-flex bg-cream rounded-full px-1 py-1 shadow-md border border-navy-15 pointer-events-auto">
-          <span className="px-4 py-1.5 rounded-full bg-navy text-cream text-f12 font-semibold select-none">
-            내 영토
-          </span>
-          <span
-            className="px-4 py-1.5 rounded-full text-navy-70 text-f12 select-none cursor-not-allowed"
-            aria-disabled="true"
-            title="준비 중인 기능입니다"
-          >
-            크루
-          </span>
-          <span
-            className="px-4 py-1.5 rounded-full text-navy-70 text-f12 select-none cursor-not-allowed"
-            aria-disabled="true"
-            title="준비 중인 기능입니다"
-          >
-            전체
-          </span>
-        </div>
-      </div>
-
       <div className="absolute bottom-0 left-0 right-0 z-10">
         <div className="mx-4 mb-3 bg-cream rounded-xl border border-navy-15 shadow-md">
           <HomeDogCard

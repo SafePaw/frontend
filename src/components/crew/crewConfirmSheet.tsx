@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from 'framer-motion'
 import type { ConfirmAction, CrewMember } from '../../types/crew'
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function CrewConfirmSheet({ action, isMutating, onConfirm, onCancel }: Props) {
+  const prefersReducedMotion = useReducedMotion()
   const config = {
     leave: {
       title: '크루를 탈퇴할까요?',
@@ -36,11 +38,18 @@ export default function CrewConfirmSheet({ action, isMutating, onConfirm, onCanc
   }[action.type]
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       onClick={(e) => { if (e.target === e.currentTarget && !isMutating) onCancel() }}
     >
-      <div className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10">
+      <motion.div
+        className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10"
+        initial={prefersReducedMotion ? false : { y: '100%' }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+      >
         <div className="w-10 h-1 rounded-full bg-navy-15 mx-auto mb-4" />
         <p className="text-f20 font-semibold text-navy mb-1">{config.title}</p>
         <p className="text-f14 text-navy-70 mb-6">{config.desc}</p>
@@ -63,7 +72,7 @@ export default function CrewConfirmSheet({ action, isMutating, onConfirm, onCanc
             취소
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

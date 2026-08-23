@@ -99,6 +99,41 @@ export function computeTerritoryBounds(
   ]
 }
 
+export function computePolygonBounds(
+  polygon: TerritoryPolygon,
+): [[number, number], [number, number]] | null {
+  let minLng = Infinity,
+    maxLng = -Infinity
+  let minLat = Infinity,
+    maxLat = -Infinity
+  let hasCoords = false
+
+  let rings: [number, number][][]
+  if (polygon.type === 'Polygon') {
+    rings = polygon.coordinates as [number, number][][]
+  } else {
+    rings = polygon.coordinates.flat() as [number, number][][]
+  }
+
+  for (const ring of rings) {
+    for (const coord of ring) {
+      const [lng, lat] = coord
+      if (typeof lng !== 'number' || typeof lat !== 'number') continue
+      hasCoords = true
+      if (lng < minLng) minLng = lng
+      if (lng > maxLng) maxLng = lng
+      if (lat < minLat) minLat = lat
+      if (lat > maxLat) maxLat = lat
+    }
+  }
+
+  if (!hasCoords) return null
+  return [
+    [minLng, minLat],
+    [maxLng, maxLat],
+  ]
+}
+
 function computeRingCentroid(ring: [number, number][]): {
   lng: number
   lat: number

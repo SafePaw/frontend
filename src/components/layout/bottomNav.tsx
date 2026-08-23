@@ -4,6 +4,7 @@ import mapIcon from '../../assets/map.png'
 import flagIcon from '../../assets/flag.png'
 import rankingIcon from '../../assets/ranking.png'
 import pawIcon from '../../assets/paw.png'
+import crewIcon from '../../assets/crewImage.png'
 
 export default function BottomNav() {
   const navigate = useNavigate()
@@ -12,6 +13,7 @@ export default function BottomNav() {
   const isMap = pathname === ROUTES.HOME
   const isTerritory = pathname === ROUTES.TERRITORY
   const isRanking = pathname === ROUTES.RANKING
+  const isCrew = pathname === ROUTES.CREW.INDEX || pathname === ROUTES.CREW.TERRITORY
   const isMy = pathname.startsWith(ROUTES.MY.INDEX)
 
   return (
@@ -59,6 +61,20 @@ export default function BottomNav() {
         <img src={rankingIcon} alt="랭킹" className="w-6 h-6 object-contain" />
         <span className={`text-f12 ${isRanking ? 'font-semibold text-navy' : 'text-navy-70'}`}>
           랭킹
+        </span>
+      </button>
+
+      {/* 크루 */}
+      <button
+        onClick={() => navigate(ROUTES.CREW.INDEX)}
+        className="flex-1 flex flex-col items-center py-2 gap-0.5 active:opacity-70 transition-opacity"
+      >
+        <span
+          className={`w-1.5 h-1.5 rounded-full mb-0.5 ${isCrew ? 'bg-navy' : 'bg-transparent'}`}
+        />
+        <img src={crewIcon} alt="크루" className="w-8 h-8 object-contain" />
+        <span className={`text-f12 ${isCrew ? 'font-semibold text-navy' : 'text-navy-70'}`}>
+          크루
         </span>
       </button>
 

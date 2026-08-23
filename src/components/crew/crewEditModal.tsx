@@ -1,4 +1,5 @@
 import { useState, useRef, type ChangeEvent } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import cameraImg from '../../assets/camera.png'
 import { updateCrew, getCrewImageUploadUrl, uploadCrewImageToPresignedUrl } from '../../api/crews'
 import { extractErrorCode } from '../../utils/apiError'
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function CrewEditModal({ crew, onClose, onSuccess }: Props) {
+  const prefersReducedMotion = useReducedMotion()
   const [name, setName] = useState(crew.name)
   const [territoryColor, setTerritoryColor] = useState(crew.territoryColor)
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(crew.imageUrl)
@@ -81,11 +83,18 @@ export default function CrewEditModal({ crew, onClose, onSuccess }: Props) {
   }
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       onClick={(e) => { if (e.target === e.currentTarget && !isSaving) onClose() }}
     >
-      <div className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10 max-h-[90vh] overflow-y-auto">
+      <motion.div
+        className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10 max-h-[90vh] overflow-y-auto"
+        initial={prefersReducedMotion ? false : { y: '100%' }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+      >
         <h2 className="text-f18 font-semibold text-navy mb-5">크루 정보 수정</h2>
 
         <div className="space-y-5">
@@ -178,7 +187,7 @@ export default function CrewEditModal({ crew, onClose, onSuccess }: Props) {
             취소
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
