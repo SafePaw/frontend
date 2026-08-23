@@ -1,4 +1,5 @@
 import { useState, useRef, type ChangeEvent } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import cameraImg from '../../assets/camera.png'
 import { createCrew, getCrewImageUploadUrl, uploadCrewImageToPresignedUrl } from '../../api/crews'
 import { extractErrorCode } from '../../utils/apiError'
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export default function CrewCreateModal({ onClose, onSuccess }: Props) {
+  const prefersReducedMotion = useReducedMotion()
   const [name, setName] = useState('')
   const [territoryColor, setTerritoryColor] = useState(TERRITORY_COLORS[0].hex)
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
@@ -81,11 +83,18 @@ export default function CrewCreateModal({ onClose, onSuccess }: Props) {
   }
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       onClick={(e) => { if (e.target === e.currentTarget && !isCreating) onClose() }}
     >
-      <div className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10 max-h-[90vh] overflow-y-auto">
+      <motion.div
+        className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10 max-h-[90vh] overflow-y-auto"
+        initial={prefersReducedMotion ? false : { y: '100%' }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
+      >
         <h2 className="text-f18 font-semibold text-navy mb-1">크루 만들기</h2>
         <p className="text-f14 text-navy-70 mb-5">함께 영토를 넓힐 크루를 만들어보세요.</p>
 
@@ -183,7 +192,7 @@ export default function CrewCreateModal({ onClose, onSuccess }: Props) {
             취소
           </button>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

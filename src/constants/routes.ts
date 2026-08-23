@@ -46,6 +46,7 @@ export const ROUTES = {
 
   CREW: {
     INDEX: '/crew',
+    TERRITORY: '/crew/territory',
   },
 
   PROFILE: '/profile',

@@ -9,6 +9,7 @@ import CrewEditModal from '../../components/crew/crewEditModal'
 import CrewMemberList from '../../components/crew/crewMemberList'
 import CrewInfoCard from '../../components/crew/crewInfoCard'
 import CrewConfirmSheet from '../../components/crew/crewConfirmSheet'
+import { ROUTES } from '../../constants/routes'
 import type { ConfirmAction, CrewResponse } from '../../types/crew'
 
 export default function CrewPage() {
@@ -157,6 +158,14 @@ export default function CrewPage() {
           inlineMessage={inlineMessage}
           onRotateInviteCode={rotateInviteCode}
         />
+
+        <button
+          onClick={() => navigate(ROUTES.CREW.TERRITORY)}
+          className="w-full py-3.5 rounded-xl bg-navy-5 text-navy text-f15 font-medium text-left px-5 flex items-center justify-between active:opacity-70 transition-opacity"
+        >
+          <span>크루 영토 보기</span>
+          <span className="text-navy-70" aria-hidden="true">›</span>
+        </button>
 
         {mutateError && (
           <p className="text-f12 text-err text-center">{mutateError}</p>
