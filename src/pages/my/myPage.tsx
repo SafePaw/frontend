@@ -11,6 +11,12 @@ import BottomNav from '../../components/layout/bottomNav'
 import pawImg from '../../assets/paw.png'
 import type { MeResponse, MeDogSummary } from '../../types/me'
 import type { Dog, DogRank } from '../../types/dog'
+import { registerMessagingSw } from '../../firebase/firebaseApp'
+import {
+  requestNotificationPermission,
+  getFcmToken,
+  type FcmStatus,
+} from '../../firebase/firebaseMessaging'
 
 const APP_VERSION = '0.0.1'
 
@@ -68,6 +74,13 @@ export default function MyPage() {
   const [saveError, setSaveError] = useState<string | null>(null)
 
   const [comingSoonMessage, setComingSoonMessage] = useState<string | null>(null)
+  const [fcmStatus, setFcmStatus] = useState<FcmStatus>(() => {
+    if (!('Notification' in window)) return 'unsupported'
+    const perm = Notification.permission
+    if (perm === 'denied') return 'denied'
+    if (perm === 'granted') return 'granted'
+    return 'default'
+  })
 
   const trimmedNickname = nicknameInput.trim()
   const isNicknameValid = trimmedNickname.length >= 2
@@ -107,6 +120,29 @@ export default function MyPage() {
   function handleLogout() {
     clearAuth()
     navigate(ROUTES.LOGIN, { replace: true })
+  }
+
+  async function handleEnableNotifications() {
+    const swReg = await registerMessagingSw()
+    if (!swReg) {
+      setFcmStatus('unsupported')
+      return
+    }
+
+    const permission = await requestNotificationPermission()
+    if (permission === 'denied') {
+      setFcmStatus('denied')
+      return
+    }
+    if (permission !== 'granted') return
+
+    setFcmStatus('granted')
+    const token = await getFcmToken(swReg)
+    if (token) {
+      setFcmStatus('token-ready')
+    } else {
+      setFcmStatus('error')
+    }
   }
 
   function showComingSoon() {
@@ -304,6 +340,36 @@ export default function MyPage() {
           {comingSoonMessage && (
             <p className="text-f12 text-navy-70 text-center py-1">{comingSoonMessage}</p>
           )}
+        </div>
+
+        {/* 알림 설정 */}
+        <div className="bg-navy-5 rounded-xl px-5 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-f16 text-navy">알림</p>
+              <p className="text-f12 text-navy-70 mt-0.5">
+                {fcmStatus === 'unsupported' && '이 브라우저는 알림을 지원하지 않아요'}
+                {fcmStatus === 'default' && '산책 관련 알림을 받을 수 있어요'}
+                {fcmStatus === 'denied' && '브라우저 설정에서 알림을 허용해 주세요'}
+                {fcmStatus === 'granted' && '알림 권한이 허용되어 있어요'}
+                {fcmStatus === 'token-ready' && '알림이 활성화되어 있어요'}
+                {fcmStatus === 'error' && '알림 설정 중 문제가 발생했어요'}
+              </p>
+            </div>
+            {fcmStatus === 'default' && (
+              <Button size="sm" variant="ghost" onClick={handleEnableNotifications}>
+                활성화
+              </Button>
+            )}
+            {(fcmStatus === 'granted' || fcmStatus === 'token-ready') && (
+              <span className="text-f12 text-ok flex-shrink-0">켜짐</span>
+            )}
+            {fcmStatus === 'error' && (
+              <Button size="sm" variant="ghost" onClick={handleEnableNotifications}>
+                재시도
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* 로그아웃 */}
