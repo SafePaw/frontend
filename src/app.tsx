@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useFcm } from './hooks/useFcm'
 import { ROUTES } from './constants/routes'
 import SplashPage from './pages/auth/splashPage'
 import LoginPage from './pages/auth/loginPage'
@@ -26,6 +27,7 @@ import CrewTerritoryPage from './pages/crew/crewTerritoryPage'
 
 export default function App() {
   const initializeAuth = useAuthStore((state) => state.initializeAuth)
+  const { fcmNotice } = useFcm()
 
   useEffect(() => {
     initializeAuth()
@@ -33,6 +35,20 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      {fcmNotice && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="fixed top-4 left-4 right-4 z-50 bg-navy text-cream rounded-xl px-4 py-3 shadow-lg pointer-events-none"
+        >
+          {fcmNotice.title && (
+            <p className="text-f16 font-semibold">{fcmNotice.title}</p>
+          )}
+          {fcmNotice.body && (
+            <p className="text-f12 mt-0.5">{fcmNotice.body}</p>
+          )}
+        </div>
+      )}
       <Routes>
         <Route path={ROUTES.SPLASH} element={<SplashPage />} />
         <Route path={ROUTES.LOGIN} element={<LoginPage />} />

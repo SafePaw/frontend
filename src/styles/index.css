@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --bottom-nav-height: 64px;
+  }
+
   *,
   *::before,
   *::after {
