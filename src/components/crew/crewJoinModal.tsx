@@ -45,7 +45,9 @@ export default function CrewJoinModal({ onClose, onSuccess }: Props) {
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      onClick={(e) => { if (e.target === e.currentTarget && !isJoining) onClose() }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isJoining) onClose()
+      }}
     >
       <motion.div
         className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10"
@@ -57,15 +59,32 @@ export default function CrewJoinModal({ onClose, onSuccess }: Props) {
         <p className="text-f14 text-navy-70 mb-5">초대 코드를 입력해 크루에 가입하세요.</p>
 
         <div className="space-y-3">
-          <input
-            value={inviteCode}
-            onChange={(e) => setInviteCode(e.target.value)}
-            placeholder="초대 코드 8자리"
-            maxLength={8}
-            autoCapitalize="characters"
-            className="w-full rounded-md px-4 py-3 bg-navy-5 text-f16 text-navy placeholder:text-navy-70 outline-none focus:ring-2 focus:ring-navy-15 tracking-widest uppercase"
-            autoFocus
-          />
+          <div className="flex items-center bg-navy-5 rounded-md focus-within:ring-2 focus-within:ring-navy-15">
+            <input
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              placeholder="초대 코드 8자리"
+              maxLength={8}
+              autoCapitalize="characters"
+              className="flex-1 min-w-0 px-4 py-3 bg-transparent text-f16 text-navy placeholder:text-navy-70 outline-none tracking-widest uppercase"
+              autoFocus
+            />
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const text = await navigator.clipboard.readText()
+                  setInviteCode(text.trim().slice(0, 8))
+                } catch {
+                  //
+                }
+              }}
+              className="flex items-center justify-center min-w-[44px] min-h-[44px] px-3 text-f13 text-navy-70 flex-shrink-0 active:opacity-60 transition-opacity"
+              aria-label="클립보드에서 붙여넣기"
+            >
+              붙여넣기
+            </button>
+          </div>
           {error && <p className="text-f12 text-err">{error}</p>}
 
           <button

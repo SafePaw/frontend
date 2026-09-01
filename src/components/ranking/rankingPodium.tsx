@@ -102,7 +102,6 @@ export default function RankingPodium({ items }: RankingPodiumProps) {
 
   if (!first) return null
 
-  // Display order: 2nd, 1st, 3rd
   const slots = [
     { item: second, delay: 0.1 },
     { item: first, delay: 0 },
@@ -115,7 +114,7 @@ export default function RankingPodium({ items }: RankingPodiumProps) {
         item ? (
           <PodiumCard key={item.dogId} item={item} delay={delay} />
         ) : (
-          <div key={idx} className="flex-1" />
+          <div key={`slot-${idx}`} className="flex-1" />
         ),
       )}
     </div>

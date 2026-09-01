@@ -21,14 +21,13 @@ export default function MyRankingFloating({
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={prefersReducedMotion ? false : { y: 12, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={prefersReducedMotion ? {} : { y: 12, opacity: 0 }}
-          transition={{ duration: 0.22, ease: 'easeOut' }}
-          className="fixed left-1/2 -translate-x-1/2 w-full px-4"
+          initial={prefersReducedMotion ? false : { x: 80, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={prefersReducedMotion ? {} : { x: 80, opacity: 0 }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
+          className="fixed right-4 w-80"
           style={{
-            maxWidth: 430,
-            bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
+            bottom: 'calc(var(--bottom-nav-height, 64px) + 8px + env(safe-area-inset-bottom, 0px))',
             zIndex: 40,
           }}
         >
@@ -36,7 +35,11 @@ export default function MyRankingFloating({
             type="button"
             onClick={onNavigate}
             aria-label={`내 순위 ${categoryRanking.rank}위 보기`}
-            className="w-full bg-navy text-cream rounded-xl px-4 py-3 flex items-center justify-between shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream active:opacity-80 transition-opacity"
+            className="w-full bg-navy text-cream rounded-xl px-4 py-3 flex items-center justify-between border border-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cream active:opacity-90 active:translate-y-0.5 transition-all duration-150"
+            style={{
+              boxShadow:
+                '0 2px 0 rgba(255,255,255,0.10) inset, 0 6px 12px rgba(0,0,0,0.30), 0 16px 32px rgba(0,0,0,0.20), 0 32px 56px rgba(0,0,0,0.10)',
+            }}
           >
             <div className="text-left">
               <p className="text-f12 text-navy-70" style={{ color: 'rgba(242,230,177,0.65)' }}>

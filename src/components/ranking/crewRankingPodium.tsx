@@ -92,7 +92,7 @@ export default function CrewRankingPodium({ items }: CrewRankingPodiumProps) {
         item ? (
           <CrewPodiumCard key={item.crewId} item={item} delay={delay} />
         ) : (
-          <div key={idx} className="flex-1" />
+          <div key={`slot-${idx}`} className="flex-1" />
         ),
       )}
     </div>
