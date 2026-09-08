@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { ROUTES } from '../../constants/routes'
 import WalkMap from '../../components/walk/walkMap'
 import { getWalkDetail } from '../../api/walks'
 import { getTerritoryDetail } from '../../api/territories'
@@ -262,6 +263,23 @@ export default function WalkHistoryDetailPage() {
             </div>
           )}
         </div>
+
+        {detail.status === 'COMPLETED' && (
+          <section
+            className="mx-6 mt-6 border-t border-navy-8 pt-6"
+            aria-labelledby="share-card-heading"
+          >
+            <h2 id="share-card-heading" className="text-f16 font-semibold text-navy">
+              공유 카드
+            </h2>
+            <p className="mt-2 mb-4 text-f14 text-navy-70">
+              산책 기록을 이미지 카드로 만들어 저장하거나 공유할 수 있습니다.
+            </p>
+            <Button fullWidth size="lg" onClick={() => navigate(ROUTES.WALK.SHARE_OF(detail.id))}>
+              공유 카드 보기
+            </Button>
+          </section>
+        )}
       </div>
     </div>
   )

@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         cream: '#F2E6B1',
+        surface: '#F8F8F6',
         navy: {
           DEFAULT: '#2A3244',
           70: '#4E5F7A',

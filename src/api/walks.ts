@@ -10,6 +10,10 @@ import type {
   WalkDetailResponse,
   ActiveWalksResponse,
   WalkHistoryPage,
+  WalkSummaryResponse,
+  ShareCardUploadUrlResponse,
+  ShareCardRequest,
+  ShareCardResponse,
 } from '../types/walk'
 
 export async function startWalk(dogId: number): Promise<WalkStartResponse> {
@@ -118,6 +122,82 @@ export async function getMyWalks(params?: {
   const res = await apiClient.get<ApiResponse<WalkHistoryPage>>('/me/walks', { params })
   if (!res.data.success || !res.data.data) {
     throw new Error(res.data.error?.message ?? '산책 기록 조회에 실패했습니다.')
+  }
+  return res.data.data
+}
+
+export async function getWalkSummary(walkId: number): Promise<WalkSummaryResponse> {
+  const res = await apiClient.get<ApiResponse<WalkSummaryResponse>>(`/walks/${walkId}/summary`)
+  if (!res.data.success || !res.data.data) {
+    throw Object.assign(new Error(res.data.error?.message ?? '산책 요약 조회에 실패했습니다.'), {
+      code: res.data.error?.code,
+    })
+  }
+  return res.data.data
+}
+
+export async function getShareCardUploadUrl(
+  walkId: number,
+  type: 'BACKGROUND' | 'RENDERED',
+  contentType: string,
+): Promise<ShareCardUploadUrlResponse> {
+  const res = await apiClient.get<ApiResponse<ShareCardUploadUrlResponse>>(
+    `/walks/${walkId}/share-card/upload-url`,
+    { params: { type, contentType } },
+  )
+  if (!res.data.success || !res.data.data) {
+    throw Object.assign(
+      new Error(res.data.error?.message ?? '이미지 업로드 URL 발급에 실패했습니다.'),
+      {
+        code: res.data.error?.code,
+      },
+    )
+  }
+  return res.data.data
+}
+
+export async function uploadShareCardImageToPresignedUrl(
+  uploadUrl: string,
+  image: Blob,
+): Promise<void> {
+  let res: Response
+  try {
+    res = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: { 'Content-Type': image.type },
+      body: image,
+      credentials: 'omit',
+    })
+  } catch {
+    throw new Error(
+      '이미지 저장 서버에 연결하지 못했습니다. 네트워크 연결 또는 서버의 업로드 허용 설정을 확인해 주세요.',
+    )
+  }
+  if (!res.ok) throw new Error(`이미지 업로드에 실패했습니다. (status: ${res.status})`)
+}
+
+export async function saveShareCard(
+  walkId: number,
+  body: ShareCardRequest,
+): Promise<ShareCardResponse> {
+  const res = await apiClient.post<ApiResponse<ShareCardResponse>>(
+    `/walks/${walkId}/share-card`,
+    body,
+  )
+  if (!res.data.success || !res.data.data) {
+    throw Object.assign(new Error(res.data.error?.message ?? '공유카드 저장에 실패했습니다.'), {
+      code: res.data.error?.code,
+    })
+  }
+  return res.data.data
+}
+
+export async function getShareCard(walkId: number): Promise<ShareCardResponse> {
+  const res = await apiClient.get<ApiResponse<ShareCardResponse>>(`/walks/${walkId}/share-card`)
+  if (!res.data.success || !res.data.data) {
+    throw Object.assign(new Error(res.data.error?.message ?? '공유카드 조회에 실패했습니다.'), {
+      code: res.data.error?.code,
+    })
   }
   return res.data.data
 }

@@ -9,6 +9,9 @@ export function extractErrorCode(err: unknown): string {
   ) {
     return (err as { response: { data: ApiResponse<unknown> } }).response.data.error!.code
   }
+  if (err && typeof err === 'object' && 'code' in err && typeof err.code === 'string') {
+    return err.code
+  }
   return 'UNKNOWN_ERROR'
 }
 
