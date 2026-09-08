@@ -217,54 +217,81 @@ function ActivityCard({
   item,
   markerSrc,
   onClick,
+  onShare,
 }: {
   item: WalkHistoryItem
   markerSrc: string
   onClick: () => void
+  onShare: () => void
 }) {
   const isTerritory = item.walkType === 'TERRITORY'
   const [imgError, setImgError] = useState(false)
   return (
-    <button
-      onClick={onClick}
-      className="w-full flex items-center gap-3 py-4 border-b border-navy-8 text-left active:opacity-60 transition-opacity"
-    >
-      <div
-        className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-navy-8"
+    <div className="flex items-center gap-2 border-b border-navy-8">
+      <button
+        type="button"
+        onClick={onClick}
+        aria-label={`${formatCardDate(item.startedAt)} ${item.dogName} 산책 상세 보기`}
+        className="flex flex-1 min-w-0 items-center gap-3 py-4 text-left active:opacity-60 transition-opacity"
       >
-        <img
-          src={imgError ? DEFAULT_MARKER_IMAGE_SRC : markerSrc}
-          alt=""
-          className="w-8 h-8 object-contain"
-          onError={() => setImgError(true)}
-        />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <p className="text-f12 text-navy-70 mb-0.5">{formatCardDate(item.startedAt)}</p>
-        <p className="text-f14 font-semibold text-navy mb-1 truncate">
-          {item.dogName}
-          {isTerritory && (
-            <span className="text-f12 font-normal text-navy-70 ml-1">· 영토 획득</span>
-          )}
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="text-f13 font-medium text-navy tabular-nums">
-            {formatDistance(item.stats.distanceMeters)}
-          </span>
-          <span className="text-navy-15">·</span>
-          <span className="text-f13 text-navy-70 tabular-nums">
-            {formatDuration(item.stats.durationSeconds)}
-          </span>
-          <span className="text-navy-15">·</span>
-          <span className="text-f13 text-navy-70 tabular-nums">
-            {item.stats.averageSpeedKmh.toFixed(1)} km/h
-          </span>
+        <div className="w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center bg-navy-8">
+          <img
+            src={imgError ? DEFAULT_MARKER_IMAGE_SRC : markerSrc}
+            alt=""
+            className="w-8 h-8 object-contain"
+            onError={() => setImgError(true)}
+          />
         </div>
-      </div>
 
-      <span className="text-navy-70 text-f16 flex-shrink-0">›</span>
-    </button>
+        <div className="flex-1 min-w-0">
+          <p className="text-f12 text-navy-70 mb-0.5">{formatCardDate(item.startedAt)}</p>
+          <p className="text-f14 font-semibold text-navy mb-1 truncate">
+            {item.dogName}
+            {isTerritory && (
+              <span className="text-f12 font-normal text-navy-70 ml-1">· 영토 획득</span>
+            )}
+          </p>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-f13 font-medium text-navy tabular-nums">
+              {formatDistance(item.stats.distanceMeters)}
+            </span>
+            <span className="text-navy-15">·</span>
+            <span className="text-f13 text-navy-70 tabular-nums">
+              {formatDuration(item.stats.durationSeconds)}
+            </span>
+            <span className="text-navy-15">·</span>
+            <span className="text-f13 text-navy-70 tabular-nums">
+              {item.stats.averageSpeedKmh.toFixed(1)} km/h
+            </span>
+          </div>
+        </div>
+
+        <span className="text-navy-70 text-f16 flex-shrink-0">›</span>
+      </button>
+      {item.status === 'COMPLETED' && (
+        <Button
+          type="button"
+          variant="ghost"
+          className="min-w-11 min-h-11 shrink-0 !p-3"
+          aria-label={`${formatCardDate(item.startedAt)} ${item.dogName} 공유 카드 보기`}
+          onClick={onShare}
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 16V3m-4 4 4-4 4 4M5 13v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" />
+          </svg>
+        </Button>
+      )}
+    </div>
   )
 }
 
@@ -470,6 +497,7 @@ export default function WalkHistoryPage() {
                   key={item.walkId}
                   item={item}
                   markerSrc={dogMarkerMap[item.dogId] ?? DEFAULT_MARKER_IMAGE_SRC}
+                  onShare={() => navigate(ROUTES.WALK.SHARE_OF(item.walkId))}
                   onClick={() =>
                     navigate(ROUTES.MY.DETAIL(String(item.walkId)), {
                       state: { dogName: item.dogName, walkType: item.walkType },

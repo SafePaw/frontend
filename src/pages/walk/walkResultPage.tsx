@@ -109,7 +109,7 @@ export default function WalkResultPage() {
     return () => {
       cancelled = true
     }
-  }, [walkId])
+  }, [walkId, finishResult])
 
   const stats: WalkStats | null = (() => {
     if (!detail?.stats && !finishResult?.stats) return null
@@ -183,6 +183,11 @@ export default function WalkResultPage() {
         {finishResult && (
           <div className="bg-navy-8 rounded-xl px-5 py-5 space-y-2">
             <p className="text-f12 font-medium text-navy-70">획득 보상</p>
+            {finishResult.xpGained.length === 0 && (
+              <p className="text-f14 text-navy-70">
+                산책이 정상 저장되었습니다. 이번 산책에서 획득한 XP는 없습니다.
+              </p>
+            )}
             {finishResult.xpGained.map((xp, i) => (
               <div key={i} className="flex justify-between">
                 <span className="text-f14 text-navy-70">{formatXpSource(xp.source)}</span>
@@ -231,8 +236,15 @@ export default function WalkResultPage() {
         )}
 
         <button
-          onClick={() => navigate(ROUTES.HOME, { replace: true })}
+          onClick={() => navigate(ROUTES.WALK.SHARE_OF(walkId!))}
           className="w-full py-4 rounded-pill bg-navy text-white text-f16 font-medium active:opacity-70"
+        >
+          공유카드 만들기
+        </button>
+
+        <button
+          onClick={() => navigate(ROUTES.HOME, { replace: true })}
+          className="w-full py-3 rounded-pill bg-navy-8 text-navy-70 text-f14 font-medium active:opacity-70"
         >
           홈으로
         </button>

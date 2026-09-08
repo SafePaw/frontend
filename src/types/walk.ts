@@ -1,3 +1,5 @@
+import type { MarkerImageType } from './dog'
+
 export type WalkServerStatus = 'ONGOING' | 'PAUSED' | 'COMPLETED' | 'ABORTED'
 export type WalkPendingAction = 'start' | 'pause' | 'resume' | 'finish' | 'abort'
 export type MapFollowMode = 'following' | 'free'
@@ -53,7 +55,7 @@ export interface WalkStats {
   averageSpeedKmh: number
   pointCount: number
   loopGapMeters: number | null
-  caloriesKcal?: number
+  caloriesKcal?: number | null
 }
 
 export interface GeoJsonPolygon {
@@ -177,4 +179,58 @@ export interface WalkHistoryPage {
   totalElements: number
   totalPages: number
   hasNext: boolean
+}
+
+export interface WalkSummaryResponse {
+  walkId: number
+  status: WalkServerStatus
+  startedAt: string
+  endedAt: string | null
+  stats: WalkStats
+  polyline: GeoJsonLineString | null
+  territory: (WalkFinishTerritoryPart & { claimedAt: string }) | null
+  owner: {
+    userId: number
+    nickname: string
+    dog: {
+      id: number
+      name: string
+      markerImageUrl: string | null
+      markerImageType: MarkerImageType | null
+      markerImageValue: string | null
+      territoryColor: string | null
+    }
+  }
+}
+
+export interface ShareCardUploadUrlResponse {
+  uploadUrl: string
+  imageKey: string
+  expiresInSeconds: number
+}
+
+export interface ShareCardRequest {
+  backgroundImageKey: string | null
+  renderedImageKey: string | null
+}
+
+export interface ShareCardResponse {
+  id: number
+  walkId: number
+  backgroundImageUrl: string | null
+  renderedImageUrl: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface WalkShareData {
+  distanceMeters: number
+  durationSeconds: number
+  averageSpeedKmh: number
+  territory: WalkFinishTerritoryPart | null
+  route: [number, number][] | null
+  dogName: string
+  markerImageUrl: string | null
+  territoryColor: string | null
+  caloriesKcal: number | null
 }

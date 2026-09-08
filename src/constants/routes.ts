@@ -23,6 +23,8 @@ export const ROUTES = {
     CONFIRM_END: '/walk/confirm-end',
     RESULT: '/walk/result/:walkId',
     RESULT_OF: (walkId: number | string) => `/walk/result/${walkId}`,
+    SHARE: '/walk/result/:walkId/share',
+    SHARE_OF: (walkId: number | string) => `/walk/result/${walkId}/share`,
     ERROR: {
       LOCATION: '/walk/error/location',
       GPS: '/walk/error/gps',
