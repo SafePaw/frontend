@@ -59,7 +59,6 @@ function WalkShareEditor({ walkId }: { walkId: number }) {
         setShareData({
           distanceMeters: summary.stats.distanceMeters,
           durationSeconds: summary.stats.durationSeconds,
-          averageSpeedKmh: summary.stats.averageSpeedKmh,
           caloriesKcal: summary.stats.caloriesKcal ?? null,
           territory: summary.territory,
           route: summary.polyline?.coordinates ?? null,
@@ -189,13 +188,13 @@ function WalkShareEditor({ walkId }: { walkId: number }) {
 
   if (isLoading)
     return (
-      <div role="status" className="p-6 text-navy">
+      <div role="status" className="h-full bg-cream p-6 text-navy">
         산책 정보를 불러오는 중...
       </div>
     )
   if (loadError)
     return (
-      <div className="p-6 space-y-4 text-navy">
+      <div className="h-full bg-cream p-6 space-y-4 text-navy">
         <p role="alert">{loadError}</p>
         <button onClick={() => setLoadAttempt((value) => value + 1)}>다시 불러오기</button>
         <button className="block" onClick={() => navigate(ROUTES.HOME)}>
@@ -205,7 +204,7 @@ function WalkShareEditor({ walkId }: { walkId: number }) {
     )
 
   return (
-    <div className="h-full min-h-0 bg-surface overflow-y-auto">
+    <div className="h-full min-h-0 bg-cream overflow-y-auto">
       <header
         className="grid grid-cols-[44px_1fr_44px] items-center px-5 pb-6"
         style={{ paddingTop: 'calc(16px + env(safe-area-inset-top))' }}
@@ -222,7 +221,7 @@ function WalkShareEditor({ walkId }: { walkId: number }) {
       <main className="px-6" style={{ paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}>
         {shareData && (
           <>
-            <div className="rounded-xl bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.08)]">
+            <div className="rounded-xl bg-cream shadow-[0_2px_8px_rgba(0,0,0,0.04),0_12px_32px_rgba(0,0,0,0.08)]">
               {card?.renderedImageUrl ? (
                 <img
                   src={card.renderedImageUrl}
@@ -239,7 +238,6 @@ function WalkShareEditor({ walkId }: { walkId: number }) {
                 />
               )}
             </div>
-            {/* Capture a fully visible, static card without interrupting preview animations. */}
             {isCapturing && (
               <div
                 aria-hidden="true"

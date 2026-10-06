@@ -149,18 +149,7 @@ export default function WalkShareMapOverlay({
       {territoryPathDs.length > 0 && (
         <g style={territoryStyle()}>
           {territoryPathDs.map((d, i) => (
-            <g key={i}>
-              <path d={d} fill={territoryFill} fillRule="evenodd" fillOpacity={0.25} />
-              <path
-                d={crayonTerritories[i]}
-                fill="none"
-                stroke={territoryFill}
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                mask={`url(#${crayonFilterId})`}
-              />
-            </g>
+            <path key={i} d={d} fill={territoryFill} fillRule="evenodd" fillOpacity={0.25} />
           ))}
         </g>
       )}
@@ -179,6 +168,21 @@ export default function WalkShareMapOverlay({
           style={{ strokeDashoffset: routePathD ? undefined : '0' }}
         />
       )}
+
+      <g style={territoryStyle()}>
+        {crayonTerritories.map((d, i) => (
+          <path
+            key={i}
+            d={d}
+            fill="none"
+            stroke={territoryFill}
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            mask={`url(#${crayonFilterId})`}
+          />
+        ))}
+      </g>
 
       {centroidPoint && (
         <g style={markerStyle()}>

@@ -3,9 +3,9 @@ import mapboxgl from 'mapbox-gl'
 import { MAPBOX_STYLE_URL } from '../../constants/walk'
 import { TERRITORY_MAP_IDS, TERRITORY_MAP_CONFIG } from '../../constants/territory'
 import type { TerritoryFeatureProperties } from '../../utils/territoryGeoJson'
-import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
+import { getTerritoryMarker } from '../../utils/territoryMarker'
 import type { TerritoryBoundsParams, TerritorySummary } from '../../types/territory'
-import { DEFAULT_MARKER_IMAGE_SRC, resolveMarkerImage } from '../../utils/markerImage'
+import { createTerritoryMarkerElement } from '../../utils/territoryMarkerElement'
 
 type TerritoryFeatureCollection = ReturnType<
   typeof import('../../utils/territoryGeoJson').toTerritoryFeatureCollection
@@ -40,7 +40,7 @@ export default function TerritoryMap({
   const onSelectRef = useRef(onSelectTerritory)
   const onBoundsRef = useRef<((bounds: TerritoryBoundsParams) => void) | undefined>(onBoundsChange)
   const dogMarkersRef = useRef<mapboxgl.Marker[]>([])
-  const [mapReady, setMapReady] = useState(false)
+  const [mapReady, setMapReady] = useState(0)
   const [mapError, setMapError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -78,30 +78,33 @@ export default function TerritoryMap({
       const m = mapRef.current
       if (!m) return
 
-      m.addSource(TERRITORY_MAP_IDS.source, {
-        type: 'geojson',
-        data: EMPTY_COLLECTION,
-      })
+      if (!m.getSource(TERRITORY_MAP_IDS.source))
+        m.addSource(TERRITORY_MAP_IDS.source, {
+          type: 'geojson',
+          data: EMPTY_COLLECTION,
+        })
 
-      m.addLayer({
-        id: TERRITORY_MAP_IDS.fillLayer,
-        type: 'fill',
-        source: TERRITORY_MAP_IDS.source,
-        paint: {
-          'fill-color': ['get', 'color'],
-          'fill-opacity': TERRITORY_MAP_CONFIG.fillOpacityOther,
-        },
-      })
+      if (!m.getLayer(TERRITORY_MAP_IDS.fillLayer))
+        m.addLayer({
+          id: TERRITORY_MAP_IDS.fillLayer,
+          type: 'fill',
+          source: TERRITORY_MAP_IDS.source,
+          paint: {
+            'fill-color': ['get', 'color'],
+            'fill-opacity': TERRITORY_MAP_CONFIG.fillOpacityOther,
+          },
+        })
 
-      m.addLayer({
-        id: TERRITORY_MAP_IDS.outlineLayer,
-        type: 'line',
-        source: TERRITORY_MAP_IDS.source,
-        paint: {
-          'line-color': ['get', 'color'],
-          'line-width': TERRITORY_MAP_CONFIG.lineWidthDefault,
-        },
-      })
+      if (!m.getLayer(TERRITORY_MAP_IDS.outlineLayer))
+        m.addLayer({
+          id: TERRITORY_MAP_IDS.outlineLayer,
+          type: 'line',
+          source: TERRITORY_MAP_IDS.source,
+          paint: {
+            'line-color': ['get', 'color'],
+            'line-width': TERRITORY_MAP_CONFIG.lineWidthDefault,
+          },
+        })
 
       const initialBounds = m.getBounds()
       if (initialBounds && onBoundsRef.current) {
@@ -113,7 +116,7 @@ export default function TerritoryMap({
         })
       }
 
-      if (mountedRef.current) setMapReady(true)
+      if (mountedRef.current) setMapReady((version) => version + 1)
     }
 
     function handleMoveEnd() {
@@ -135,6 +138,7 @@ export default function TerritoryMap({
     }
 
     function handleClick(e: mapboxgl.MapMouseEvent) {
+      if (!map.getLayer(TERRITORY_MAP_IDS.fillLayer)) return
       const features = map.queryRenderedFeatures(e.point, {
         layers: [TERRITORY_MAP_IDS.fillLayer],
       })
@@ -159,7 +163,7 @@ export default function TerritoryMap({
     })
     if (containerRef.current) resizeObserver.observe(containerRef.current)
 
-    map.on('load', handleLoad)
+    map.on('style.load', handleLoad)
     map.on('error', handleError)
     map.on('click', handleClick)
     map.on('moveend', handleMoveEnd)
@@ -168,7 +172,7 @@ export default function TerritoryMap({
 
     return () => {
       mountedRef.current = false
-      map.off('load', handleLoad)
+      map.off('style.load', handleLoad)
       map.off('error', handleError)
       map.off('click', handleClick)
       map.off('moveend', handleMoveEnd)
@@ -177,7 +181,7 @@ export default function TerritoryMap({
       resizeObserver.disconnect()
       dogMarkersRef.current.forEach((m) => m.remove())
       dogMarkersRef.current = []
-      setMapReady(false)
+      setMapReady(0)
       map.remove()
       mapRef.current = null
     }
@@ -198,6 +202,8 @@ export default function TerritoryMap({
     if (!mapReady) return
     const map = mapRef.current
     if (!map) return
+    if (!map.getLayer(TERRITORY_MAP_IDS.fillLayer) || !map.getLayer(TERRITORY_MAP_IDS.outlineLayer))
+      return
     const selectedId = selectedTerritoryId ?? -1
 
     map.setPaintProperty(TERRITORY_MAP_IDS.fillLayer, 'fill-opacity', [
@@ -223,6 +229,7 @@ export default function TerritoryMap({
     if (!map) return
 
     const [[minLng, minLat], [maxLng, maxLat]] = boundsData
+    hasFittedBoundsRef.current = true
     map.fitBounds(
       [
         [minLng, minLat],
@@ -234,7 +241,6 @@ export default function TerritoryMap({
         duration: 800,
       },
     )
-    hasFittedBoundsRef.current = true
   }, [mapReady, boundsData])
 
   useEffect(() => {
@@ -247,21 +253,10 @@ export default function TerritoryMap({
 
     for (const territory of territories) {
       if (!territory.polygon) continue
-      const centroid = computeGeometryCentroid(territory.polygon)
+      const centroid = getTerritoryMarker(territory)
+      if (!centroid) continue
 
-      const el = document.createElement('div')
-      el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);flex-shrink:0;`
-      const img = document.createElement('img')
-      img.src = resolveMarkerImage({
-        markerImageType: territory.dog.markerImageType,
-        markerImageValue: territory.dog.markerImageValue,
-        markerImageUrl: territory.dog.markerImageUrl,
-      })
-      img.alt = territory.dog.name
-      const objectFit = territory.dog.markerImageType === 'UPLOADED' ? 'cover' : 'contain'
-      img.style.cssText = `width:100%;height:100%;object-fit:${objectFit};`
-      img.onerror = () => { img.src = DEFAULT_MARKER_IMAGE_SRC }
-      el.appendChild(img)
+      const el = createTerritoryMarkerElement(territory.dog)
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat(centroid)

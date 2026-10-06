@@ -34,6 +34,7 @@ export const ROUTES = {
 
   MY: {
     INDEX: '/my',
+    CREW_MANAGEMENT: '/my/crew-management',
     HISTORY: '/my/history',
     DETAIL: (walkId: string) => `/my/history/${walkId}`,
     SETTINGS: '/my/settings',

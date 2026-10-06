@@ -1,3 +1,4 @@
+import type { TerritoryMarkerCoordinates } from '../utils/territoryMarker'
 import type { MarkerImageType } from './dog'
 
 export type WalkServerStatus = 'ONGOING' | 'PAUSED' | 'COMPLETED' | 'ABORTED'
@@ -75,13 +76,15 @@ export interface GeoJsonLineString {
   coordinates: [number, number][]
 }
 
-export interface WalkFinishTerritoryPart {
+export interface WalkFinishTerritoryPart extends TerritoryMarkerCoordinates {
   id: number
   polygon: GeoJsonGeometry
   areaSquareMeters: number
 }
 
 export interface WalkFinishIntrusionPart {
+  victimMarkerLng: number | null
+  victimMarkerLat: number | null
   victimDogName: string
   overlapRatio: number
   victimTerritoryId: number
@@ -111,7 +114,7 @@ export interface WalkFinishResponse {
   rankUp: boolean
 }
 
-export interface WalkDetailResponse {
+export interface WalkDetailResponse extends TerritoryMarkerCoordinates {
   id: number
   dogId: number
   status: WalkServerStatus
@@ -154,7 +157,7 @@ export interface ActiveWalksResponse {
 
 export type WalkType = 'TERRITORY' | 'NORMAL'
 
-export interface WalkHistoryTerritory {
+export interface WalkHistoryTerritory extends TerritoryMarkerCoordinates {
   id: number
   areaSquareMeters: number
   status: 'ACTIVE' | 'CONQUERED'
@@ -226,7 +229,6 @@ export interface ShareCardResponse {
 export interface WalkShareData {
   distanceMeters: number
   durationSeconds: number
-  averageSpeedKmh: number
   territory: WalkFinishTerritoryPart | null
   route: [number, number][] | null
   dogName: string

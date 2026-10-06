@@ -90,7 +90,7 @@ export default function CrewEditModal({ crew, onClose, onSuccess }: Props) {
       onClick={(e) => { if (e.target === e.currentTarget && !isSaving) onClose() }}
     >
       <motion.div
-        className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10 max-h-[90vh] overflow-y-auto"
+        className="w-full max-w-[430px] bg-cream rounded-t-2xl px-6 pt-6 pb-10 max-h-[90vh] overflow-y-auto"
         initial={prefersReducedMotion ? false : { y: '100%' }}
         animate={{ y: 0 }}
         transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}

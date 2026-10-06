@@ -41,9 +41,10 @@ export default function TerritoryPage() {
   const [crewTerritories, setCrewTerritories] = useState<CrewTerritoryItem[]>([])
   const [crewTerritoryState, setCrewTerritoryState] = useState<CrewTerritoryState>('idle')
   const [crewStats, setCrewStats] = useState<CrewStats | null>(null)
-  const [crewFitBounds, setCrewFitBounds] = useState<[[number, number], [number, number]] | null>(
-    null,
-  )
+  const [crewFitBounds, setCrewFitBounds] = useState<{
+    crewId: number
+    bounds: [[number, number], [number, number]]
+  } | null>(null)
   const crewBoundsReqRef = useRef(0)
 
   //내 영토 조회
@@ -113,13 +114,18 @@ export default function TerritoryPage() {
     getCrewStats(crew.id)
       .then(setCrewStats)
       .catch(() => {})
+    let cancelled = false
+    setCrewFitBounds(null)
     getCrewTerritoryUnion(crew.id)
       .then((union) => {
-        if (!union.geometry) return
+        if (cancelled || !union.geometry) return
         const bounds = computePolygonBounds(union.geometry)
-        if (bounds) setCrewFitBounds(bounds)
+        if (bounds) setCrewFitBounds({ crewId: crew.id, bounds })
       })
       .catch(() => {})
+    return () => {
+      cancelled = true
+    }
   }, [crew])
 
   const handleCrewBoundsChange = useCallback(
@@ -278,9 +284,10 @@ export default function TerritoryPage() {
           {crewFetchState === 'joined' && (
             <div className="absolute inset-0">
               <CrewTerritoryMap
+                crewId={crew?.id ?? null}
                 territories={crewTerritories}
                 onBoundsChange={handleCrewBoundsChange}
-                fitBoundsTarget={crewFitBounds}
+                fitBoundsTarget={crewFitBounds?.crewId === crew?.id ? crewFitBounds?.bounds : null}
               />
             </div>
           )}

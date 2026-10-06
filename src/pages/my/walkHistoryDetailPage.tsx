@@ -1,3 +1,4 @@
+import { formatPace } from '../../utils/walkPace'
 import { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
@@ -5,7 +6,7 @@ import WalkMap from '../../components/walk/walkMap'
 import { getWalkDetail } from '../../api/walks'
 import { getTerritoryDetail } from '../../api/territories'
 import { formatDuration, formatTerritory } from '../../utils/rankingFormat'
-import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
+import { getTerritoryMarker } from '../../utils/territoryMarker'
 import { resolveMarkerImage } from '../../utils/markerImage'
 import Button from '../../components/ui/button'
 import type { WalkDetailResponse } from '../../types/walk'
@@ -73,6 +74,7 @@ export default function WalkHistoryDetailPage() {
     async function load() {
       setIsLoading(true)
       setError(null)
+      setTerritory(null)
       try {
         const walkDetail = await getWalkDetail(Number(walkId))
         if (cancelled) return
@@ -141,8 +143,7 @@ export default function WalkHistoryDetailPage() {
   const territoryPolygon = isTerritory ? (territory?.polygon ?? null) : null
   const territoryColor = territory?.dog.territoryColor
 
-  const dogMarkerPosition =
-    isTerritory && territory?.polygon ? computeGeometryCentroid(territory.polygon) : null
+  const dogMarkerPosition = isTerritory && territory ? getTerritoryMarker(territory) : null
 
   const dogMarkerSrc =
     isTerritory && territory?.dog
@@ -199,9 +200,9 @@ export default function WalkHistoryDetailPage() {
           <div className="grid grid-cols-3 gap-x-4 gap-y-5 pb-6 border-b border-navy-8">
             <StatCell label="시간" value={formatDuration(detail.stats.durationSeconds)} />
             <StatCell
-              label="평균 속도"
-              value={detail.stats.averageSpeedKmh.toFixed(1)}
-              unit=" km/h"
+              label="페이스"
+              value={formatPace(detail.stats.durationSeconds, detail.stats.distanceMeters)}
+              unit=""
             />
             <StatCell
               label="칼로리"

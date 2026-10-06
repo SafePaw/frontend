@@ -1,3 +1,4 @@
+import { formatPace } from '../../../utils/walkPace'
 import type { WalkShareData } from '../../../types/walk'
 
 interface Props {
@@ -17,14 +18,6 @@ function formatDuration(seconds: number): string {
   if (h > 0) return `${h}시간 ${m}분`
   if (m > 0) return `${m}분 ${s}초`
   return `${s}초`
-}
-
-function formatPace(speedKmh: number): string {
-  if (!speedKmh || speedKmh <= 0) return '—'
-  const totalSeconds = Math.round(3600 / speedKmh)
-  const mins = Math.floor(totalSeconds / 60)
-  const secs = totalSeconds % 60
-  return `${mins}'${secs.toString().padStart(2, '0')}"/km`
 }
 
 function formatArea(m2: number): string {
@@ -47,7 +40,7 @@ export default function WalkShareStats({ data, animationTriggered, reducedMotion
   const stats = [
     { label: '거리', value: formatDistance(data.distanceMeters) },
     { label: '시간', value: formatDuration(data.durationSeconds) },
-    { label: '페이스', value: formatPace(data.averageSpeedKmh) },
+    { label: '페이스', value: formatPace(data.durationSeconds, data.distanceMeters) },
     {
       label: '점유 영토',
       value: data.territory ? formatArea(data.territory.areaSquareMeters) : '0 m²',

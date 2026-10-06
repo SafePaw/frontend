@@ -4,15 +4,15 @@ import Toast from '../ui/toast'
 
 interface Props {
   crew: CrewResponse
-  isMutating: boolean
-  inlineMessage: string | null
-  onRotateInviteCode: () => void
+  isMutating?: boolean
+  inlineMessage?: string | null
+  onRotateInviteCode?: () => void
 }
 
 export default function CrewInfoCard({
   crew,
-  isMutating,
-  inlineMessage,
+  isMutating = false,
+  inlineMessage = null,
   onRotateInviteCode,
 }: Props) {
   const isLeader = crew.myRole === 'LEADER'
@@ -52,9 +52,9 @@ export default function CrewInfoCard({
           <p className="text-f12 text-navy-70 mt-0.5">
             멤버 {crew.memberCount}/{crew.maxMembers}명
           </p>
-          {isLeader && (
+          {crew.myRole && (
             <span className="inline-block mt-1 text-f10 text-cream bg-navy rounded-full px-2 py-0.5">
-              리더
+              {isLeader ? '리더' : '멤버'}
             </span>
           )}
         </div>
@@ -64,7 +64,7 @@ export default function CrewInfoCard({
         <div className="mt-4 pt-4 border-t border-navy-15">
           <p className="text-f12 text-navy-70 mb-1">초대 코드</p>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-f16 font-semibold text-navy tracking-widest">
+            <span className="min-w-0 break-all text-f16 font-semibold text-navy tracking-widest">
               {crew.inviteCode}
             </span>
             <div className="flex items-center gap-1 flex-shrink-0">
@@ -75,7 +75,7 @@ export default function CrewInfoCard({
               >
                 {copied ? <IconCheck /> : <IconCopy />}
               </button>
-              {isLeader && (
+              {isLeader && onRotateInviteCode && (
                 <button
                   onClick={onRotateInviteCode}
                   disabled={isMutating}

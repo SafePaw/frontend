@@ -1,3 +1,4 @@
+import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { WALK_MAP_IDS, MAPBOX_STYLE_URL } from '../../constants/walk'
@@ -42,7 +43,7 @@ export default function WalkMap({
   const dogMarkerRef = useRef<mapboxgl.Marker | null>(null)
   const [followMode, setFollowMode] = useState<'following' | 'free'>('following')
   const [mapError, setMapError] = useState<string | null>(null)
-  const [mapReady, setMapReady] = useState(false)
+  const [mapReady, setMapReady] = useState(0)
 
   const isResultMode = !!completedCoords
   const initialCenterRef = useRef<[number, number]>(
@@ -74,57 +75,68 @@ export default function WalkMap({
 
     mapRef.current = map
 
-    map.on('load', () => {
-      map.addSource(WALK_MAP_IDS.routeSource, {
-        type: 'geojson',
-        data: EMPTY_LINESTRING,
-      })
-      map.addLayer({
-        id: WALK_MAP_IDS.routeLayer,
-        type: 'line',
-        source: WALK_MAP_IDS.routeSource,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: {
-          'line-color': ROUTE_LINE_COLOR_ACTIVE,
-          'line-width': ROUTE_LINE_WIDTH,
-          'line-opacity': 0.9,
-        },
-      })
+    map.on('style.load', () => {
+      if (!map.getSource(WALK_MAP_IDS.routeSource))
+        map.addSource(WALK_MAP_IDS.routeSource, {
+          type: 'geojson',
+          data: EMPTY_LINESTRING,
+        })
+      if (!map.getLayer(WALK_MAP_IDS.routeLayer))
+        map.addLayer({
+          id: WALK_MAP_IDS.routeLayer,
+          type: 'line',
+          source: WALK_MAP_IDS.routeSource,
+          layout: { 'line-join': 'round', 'line-cap': 'round' },
+          paint: {
+            'line-color': ROUTE_LINE_COLOR_ACTIVE,
+            'line-width': ROUTE_LINE_WIDTH,
+            'line-opacity': 0.9,
+          },
+        })
 
-      map.addSource(WALK_MAP_IDS.startPointSource, {
-        type: 'geojson',
-        data: EMPTY_LINESTRING,
-      })
-      map.addLayer({
-        id: WALK_MAP_IDS.startPointLayer,
-        type: 'circle',
-        source: WALK_MAP_IDS.startPointSource,
-        paint: {
-          'circle-radius': 6,
-          'circle-color': '#2A3244',
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#F2E6B1',
-        },
-      })
+      if (!map.getSource(WALK_MAP_IDS.startPointSource))
+        map.addSource(WALK_MAP_IDS.startPointSource, {
+          type: 'geojson',
+          data: EMPTY_LINESTRING,
+        })
+      if (!map.getLayer(WALK_MAP_IDS.startPointLayer))
+        map.addLayer({
+          id: WALK_MAP_IDS.startPointLayer,
+          type: 'circle',
+          source: WALK_MAP_IDS.startPointSource,
+          paint: {
+            'circle-radius': 6,
+            'circle-color': '#2A3244',
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#F2E6B1',
+          },
+        })
 
-      map.addSource(WALK_MAP_IDS.territorySource, {
-        type: 'geojson',
-        data: EMPTY_LINESTRING,
-      })
-      map.addLayer({
-        id: WALK_MAP_IDS.territoryFillLayer,
-        type: 'fill',
-        source: WALK_MAP_IDS.territorySource,
-        paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.25 },
-      })
-      map.addLayer({
-        id: WALK_MAP_IDS.territoryOutlineLayer,
-        type: 'line',
-        source: WALK_MAP_IDS.territorySource,
-        paint: { 'line-color': ['get', 'color'], 'line-width': 1, 'line-opacity': 0.4 },
-      })
+      if (!map.getSource(WALK_MAP_IDS.territorySource))
+        map.addSource(WALK_MAP_IDS.territorySource, {
+          type: 'geojson',
+          data: EMPTY_LINESTRING,
+        })
+      if (!map.getLayer(WALK_MAP_IDS.territoryFillLayer))
+        map.addLayer({
+          id: WALK_MAP_IDS.territoryFillLayer,
+          type: 'fill',
+          source: WALK_MAP_IDS.territorySource,
+          paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.25 },
+        })
+      if (!map.getLayer(WALK_MAP_IDS.territoryOutlineLayer))
+        map.addLayer({
+          id: WALK_MAP_IDS.territoryOutlineLayer,
+          type: 'line',
+          source: WALK_MAP_IDS.territorySource,
+          paint: { 'line-color': ['get', 'color'], 'line-width': 1, 'line-opacity': 0.4 },
+        })
 
-      setMapReady(true)
+      map.moveLayer(WALK_MAP_IDS.territoryFillLayer, WALK_MAP_IDS.routeLayer)
+      map.moveLayer(WALK_MAP_IDS.territoryOutlineLayer)
+      map.moveLayer(WALK_MAP_IDS.startPointLayer)
+
+      setMapReady((version) => version + 1)
     })
 
     map.on('error', (e) => {
@@ -148,7 +160,7 @@ export default function WalkMap({
       dogMarkerRef.current = null
       map.remove()
       mapRef.current = null
-      setMapReady(false)
+      setMapReady(0)
     }
   }, [])
 
@@ -211,6 +223,7 @@ export default function WalkMap({
     if (!mapReady) return
     const map = mapRef.current
     if (!map) return
+    if (!map.getLayer(WALK_MAP_IDS.routeLayer)) return
     map.setPaintProperty(
       WALK_MAP_IDS.routeLayer,
       'line-color',
@@ -221,13 +234,17 @@ export default function WalkMap({
 
   // 영토 polygon
   useEffect(() => {
-    if (!mapReady || !territoryPolygon) return
+    if (!mapReady) return
     const map = mapRef.current
     if (!map) return
 
     const source = map.getSource(WALK_MAP_IDS.territorySource) as mapboxgl.GeoJSONSource | undefined
     if (!source) return
 
+    if (!territoryPolygon) {
+      source.setData(EMPTY_LINESTRING)
+      return
+    }
     source.setData({
       type: 'FeatureCollection',
       features: [
@@ -285,7 +302,11 @@ export default function WalkMap({
     el.style.cssText =
       'width:40px;height:40px;border-radius:50%;border:2px solid white;overflow:hidden;background:white;box-shadow:0 2px 6px rgba(0,0,0,0.25);'
     const img = document.createElement('img')
-    img.src = dogMarkerSrc
+    img.src = dogMarkerSrc.trim() || DEFAULT_MARKER_IMAGE_SRC
+    img.onerror = () => {
+      img.onerror = null
+      img.src = DEFAULT_MARKER_IMAGE_SRC
+    }
     img.alt = '내 강아지'
     img.style.cssText = 'width:100%;height:100%;object-fit:contain;'
     el.appendChild(img)

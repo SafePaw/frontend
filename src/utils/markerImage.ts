@@ -59,11 +59,7 @@ export function resolveMarkerImage(params: {
     return DEFAULT_MARKER_IMAGE_SRC
   }
 
-  if (markerImageType === 'UPLOADED') {
-    return markerImageUrl ?? DEFAULT_MARKER_IMAGE_SRC
-  }
-
-  return markerImageUrl ?? DEFAULT_MARKER_IMAGE_SRC
+  return markerImageUrl?.trim() || DEFAULT_MARKER_IMAGE_SRC
 }
 
 export function isPresetMarkerSelected(params: {

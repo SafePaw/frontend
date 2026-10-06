@@ -1,3 +1,4 @@
+import { formatPace } from '../../utils/walkPace'
 import { useState, useEffect } from 'react'
 import { useParams, useLocation, useNavigate } from 'react-router-dom'
 import WalkMap from '../../components/walk/walkMap'
@@ -169,8 +170,8 @@ export default function WalkResultPage() {
             <StatItem label="거리" value={stats ? formatDistance(stats.distanceMeters) : '—'} />
             <StatItem label="시간" value={stats ? formatDuration(stats.durationSeconds) : '—'} />
             <StatItem
-              label="평균 속도"
-              value={stats?.averageSpeedKmh ? `${stats.averageSpeedKmh.toFixed(1)}km/h` : '—'}
+              label="페이스"
+              value={formatPace(stats?.durationSeconds, stats?.distanceMeters)}
             />
             <StatItem
               label="칼로리"

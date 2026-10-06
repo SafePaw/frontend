@@ -1,3 +1,4 @@
+import type { TerritoryMarkerCoordinates } from '../utils/territoryMarker'
 import type { DogRank, MarkerImageType } from './dog'
 import type { GeoJsonPolygon, GeoJsonMultiPolygon } from './walk'
 
@@ -29,7 +30,7 @@ export interface TerritoryConqueredBy {
   dogName: string
 }
 
-export interface TerritorySummary {
+export interface TerritorySummary extends TerritoryMarkerCoordinates {
   id: number
   dog: TerritoryDog
   polygon: TerritoryPolygon
@@ -40,7 +41,7 @@ export interface TerritorySummary {
   conqueredAt: string | null
 }
 
-export interface TerritoryDetail {
+export interface TerritoryDetail extends TerritoryMarkerCoordinates {
   id: number
   dog: TerritoryDog
   polygon: TerritoryPolygon | null

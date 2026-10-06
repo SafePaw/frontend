@@ -112,7 +112,10 @@ export default function MyPage() {
         <div className="space-y-1.5">
           <div className="bg-navy-5 rounded-xl overflow-hidden divide-y divide-navy-8">
             <MenuRow label="강아지 관리" onClick={() => navigate(ROUTES.DOGS.INDEX)} />
-            <MenuRow label="크루 관리" onClick={() => navigate(ROUTES.CREW.INDEX)} />
+            <MenuRow
+              label="크루 관리"
+              onClick={() => navigate(ROUTES.MY.CREW_MANAGEMENT, { state: { fromMy: true } })}
+            />
             <MenuRow label="산책 기록" onClick={() => navigate(ROUTES.MY.HISTORY)} />
             <MenuRow label="설정" onClick={showComingSoon} />
           </div>

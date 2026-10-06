@@ -1,3 +1,4 @@
+import { formatPace } from '../../utils/walkPace'
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
@@ -261,7 +262,7 @@ function ActivityCard({
             </span>
             <span className="text-navy-15">·</span>
             <span className="text-f13 text-navy-70 tabular-nums">
-              {item.stats.averageSpeedKmh.toFixed(1)} km/h
+              {formatPace(item.stats.durationSeconds, item.stats.distanceMeters)}
             </span>
           </div>
         </div>
@@ -363,7 +364,6 @@ export default function WalkHistoryPage() {
     [periodWalks],
   )
   const walkCount = periodWalks.length
-  const avgSpeedKmh = totalDurationSec > 0 ? totalDistanceM / 1000 / (totalDurationSec / 3600) : 0
 
   const bars = useMemo(() => buildBarData(allWalks, filter, anchor), [allWalks, filter, anchor])
   const canGoNext = !isCurrentOrFuturePeriod(filter, anchor)
@@ -472,7 +472,7 @@ export default function WalkHistoryPage() {
         {walkCount > 0 && (
           <div className="px-6 flex items-start gap-6 mb-6 mt-3">
             <SubStat label="산책" value={`${walkCount}회`} />
-            <SubStat label="평균 속도" value={`${avgSpeedKmh.toFixed(1)} km/h`} />
+            <SubStat label="페이스" value={formatPace(totalDurationSec, totalDistanceM)} />
             <SubStat label="시간" value={formatTotalTime(totalDurationSec)} />
           </div>
         )}

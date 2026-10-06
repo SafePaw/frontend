@@ -7,8 +7,8 @@ import { getTerritories } from '../../api/territories'
 import { toTerritoryFeatureCollection } from '../../utils/territoryGeoJson'
 import type { TerritoryBoundsParams } from '../../types/territory'
 import pinImg from '../../assets/pin.png'
-import { DEFAULT_MARKER_IMAGE_SRC } from '../../utils/markerImage'
-import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
+import { createTerritoryMarkerElement } from '../../utils/territoryMarkerElement'
+import { getTerritoryMarker } from '../../utils/territoryMarker'
 
 type GeoPermission = 'granted' | 'denied' | 'prompt' | 'unsupported'
 
@@ -88,14 +88,9 @@ export default function HomeMap() {
         territoryMarkersRef.current = []
         for (const territory of data) {
           if (!territory.isMine || !territory.polygon) continue
-          const centroid = computeGeometryCentroid(territory.polygon)
-          const el = document.createElement('div')
-          el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${territory.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);`
-          const img = document.createElement('img')
-          img.src = territory.dog.markerImageUrl ?? DEFAULT_MARKER_IMAGE_SRC
-          img.alt = territory.dog.name
-          img.style.cssText = 'width:100%;height:100%;object-fit:contain;'
-          el.appendChild(img)
+          const centroid = getTerritoryMarker(territory)
+          if (!centroid) continue
+          const el = createTerritoryMarkerElement(territory.dog)
           const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
             .setLngLat(centroid)
             .addTo(map)
@@ -119,25 +114,28 @@ export default function HomeMap() {
         pendingCenterRef.current = null
       }
 
-      map.addSource(HOME_TERRITORY_MAP_IDS.source, {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-      })
-      map.addLayer({
-        id: HOME_TERRITORY_MAP_IDS.fillLayer,
-        type: 'fill',
-        source: HOME_TERRITORY_MAP_IDS.source,
-        paint: {
-          'fill-color': ['get', 'color'],
-          'fill-opacity': ['case', ['==', ['get', 'isMine'], true], 0.3, 0.12],
-        },
-      })
-      map.addLayer({
-        id: HOME_TERRITORY_MAP_IDS.outlineLayer,
-        type: 'line',
-        source: HOME_TERRITORY_MAP_IDS.source,
-        paint: { 'line-color': ['get', 'color'], 'line-width': 1.5 },
-      })
+      if (!map.getSource(HOME_TERRITORY_MAP_IDS.source))
+        map.addSource(HOME_TERRITORY_MAP_IDS.source, {
+          type: 'geojson',
+          data: { type: 'FeatureCollection', features: [] },
+        })
+      if (!map.getLayer(HOME_TERRITORY_MAP_IDS.fillLayer))
+        map.addLayer({
+          id: HOME_TERRITORY_MAP_IDS.fillLayer,
+          type: 'fill',
+          source: HOME_TERRITORY_MAP_IDS.source,
+          paint: {
+            'fill-color': ['get', 'color'],
+            'fill-opacity': ['case', ['==', ['get', 'isMine'], true], 0.3, 0.12],
+          },
+        })
+      if (!map.getLayer(HOME_TERRITORY_MAP_IDS.outlineLayer))
+        map.addLayer({
+          id: HOME_TERRITORY_MAP_IDS.outlineLayer,
+          type: 'line',
+          source: HOME_TERRITORY_MAP_IDS.source,
+          paint: { 'line-color': ['get', 'color'], 'line-width': 1.5 },
+        })
 
       const initialBounds = map.getBounds()
       if (initialBounds) {
@@ -168,7 +166,7 @@ export default function HomeMap() {
       setMapError('지도를 불러오지 못했습니다.')
     }
 
-    map.on('load', handleLoad)
+    map.on('style.load', handleLoad)
     map.on('error', handleError)
     map.on('moveend', handleMoveEnd)
 
@@ -179,7 +177,7 @@ export default function HomeMap() {
 
     return () => {
       mountedRef.current = false
-      map.off('load', handleLoad)
+      map.off('style.load', handleLoad)
       map.off('error', handleError)
       map.off('moveend', handleMoveEnd)
       resizeObserver.disconnect()
