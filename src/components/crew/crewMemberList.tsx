@@ -2,18 +2,18 @@ import type { CrewMember, CrewRole } from '../../types/crew'
 
 interface Props {
   members: CrewMember[]
-  myUserId: number
-  myRole: CrewRole
-  isMutating: boolean
-  onKick: (member: CrewMember) => void
-  onTransfer: (member: CrewMember) => void
+  myUserId?: number
+  myRole: CrewRole | null
+  isMutating?: boolean
+  onKick?: (member: CrewMember) => void
+  onTransfer?: (member: CrewMember) => void
 }
 
 export default function CrewMemberList({
   members,
   myUserId,
   myRole,
-  isMutating,
+  isMutating = false,
   onKick,
   onTransfer,
 }: Props) {
@@ -30,7 +30,7 @@ export default function CrewMemberList({
           return (
             <div
               key={member.userId}
-              className="bg-navy-5 rounded-xl px-4 py-4 flex items-center gap-3"
+              className="bg-navy-5 rounded-xl px-4 py-4 flex flex-wrap items-center gap-3"
             >
               <div className="w-10 h-10 rounded-full bg-navy-15 flex items-center justify-center flex-shrink-0">
                 <span className="text-f12 text-navy-70 font-medium">
@@ -38,7 +38,7 @@ export default function CrewMemberList({
                 </span>
               </div>
 
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-[100px]">
                 <div className="flex items-center gap-2">
                   <span className="text-f16 font-medium text-navy truncate">{member.nickname}</span>
                   {isMe && (
@@ -55,22 +55,26 @@ export default function CrewMemberList({
                 <p className="text-f12 text-navy-70 mt-0.5">강아지 {member.dogCount}마리</p>
               </div>
 
-              {isLeader && !isMe && (
-                <div className="flex gap-2 flex-shrink-0">
-                  <button
-                    onClick={() => onTransfer(member)}
-                    disabled={isMutating}
-                    className="text-f12 text-navy-70 border border-navy-15 rounded-pill px-3 py-1 disabled:opacity-40 active:opacity-70 transition-opacity"
-                  >
-                    위임
-                  </button>
-                  <button
-                    onClick={() => onKick(member)}
-                    disabled={isMutating}
-                    className="text-f12 text-err border border-err/30 rounded-pill px-3 py-1 disabled:opacity-40 active:opacity-70 transition-opacity"
-                  >
-                    강퇴
-                  </button>
+              {isLeader && !isMe && !isMemberLeader && (onKick || onTransfer) && (
+                <div className="ml-auto flex gap-2 flex-shrink-0">
+                  {onTransfer && (
+                    <button
+                      onClick={() => onTransfer(member)}
+                      disabled={isMutating}
+                      className="text-f12 text-navy-70 border border-navy-15 rounded-pill px-3 py-1 disabled:opacity-40 active:opacity-70 transition-opacity"
+                    >
+                      위임
+                    </button>
+                  )}
+                  {onKick && (
+                    <button
+                      onClick={() => onKick(member)}
+                      disabled={isMutating}
+                      className="text-f12 text-err border border-err/30 rounded-pill px-3 py-1 disabled:opacity-40 active:opacity-70 transition-opacity"
+                    >
+                      강퇴
+                    </button>
+                  )}
                 </div>
               )}
             </div>

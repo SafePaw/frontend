@@ -1,3 +1,4 @@
+import type { TerritoryMarkerCoordinates } from '../utils/territoryMarker'
 import type { TerritoryPolygon } from './territory'
 import type { MarkerImageType } from './dog'
 
@@ -18,7 +19,7 @@ export interface CrewTerritoryCrewPart {
   imageUrl: string | null
 }
 
-export interface CrewTerritoryItem {
+export interface CrewTerritoryItem extends TerritoryMarkerCoordinates {
   id: number
   polygon: TerritoryPolygon
   areaSquareMeters: number

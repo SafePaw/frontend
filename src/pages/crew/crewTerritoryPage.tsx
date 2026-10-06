@@ -24,7 +24,10 @@ export default function CrewTerritoryPage() {
   const [territoryState, setTerritoryState] = useState<TerritoryFetchState>('idle')
 
   const [stats, setStats] = useState<CrewStats | null>(null)
-  const [fitBounds, setFitBounds] = useState<[[number, number], [number, number]] | null>(null)
+  const [fitBounds, setFitBounds] = useState<{
+    crewId: number
+    bounds: [[number, number], [number, number]]
+  } | null>(null)
 
   const latestReqRef = useRef(0)
 
@@ -49,13 +52,18 @@ export default function CrewTerritoryPage() {
     getCrewStats(crew.id)
       .then(setStats)
       .catch(() => {})
+    let cancelled = false
+    setFitBounds(null)
     getCrewTerritoryUnion(crew.id)
       .then((union) => {
-        if (!union.geometry) return
+        if (cancelled || !union.geometry) return
         const bounds = computePolygonBounds(union.geometry)
-        if (bounds) setFitBounds(bounds)
+        if (bounds) setFitBounds({ crewId: crew.id, bounds })
       })
       .catch(() => {})
+    return () => {
+      cancelled = true
+    }
   }, [crew])
 
   const handleBoundsChange = useCallback(
@@ -136,9 +144,10 @@ export default function CrewTerritoryPage() {
       {/* 지도 */}
       <div className="absolute inset-0">
         <CrewTerritoryMap
+          crewId={crew?.id ?? null}
           territories={territories}
           onBoundsChange={handleBoundsChange}
-          fitBoundsTarget={fitBounds}
+          fitBoundsTarget={fitBounds?.crewId === crew?.id ? fitBounds?.bounds : null}
         />
       </div>
 

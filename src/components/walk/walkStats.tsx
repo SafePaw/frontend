@@ -1,3 +1,4 @@
+import { formatPace } from '../../utils/walkPace'
 import dogCaloriesImg from '../../assets/dogCalories.png'
 import type { WalkLiveStats } from '../../types/walk'
 
@@ -13,11 +14,6 @@ function formatDuration(seconds: number): string {
   const s = safe % 60
   if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
-}
-
-function formatSpeed(kmh: number | null | undefined): string {
-  if (!kmh) return '—'
-  return `${kmh.toFixed(1)}km/h`
 }
 
 function formatCalories(kcal: number): string {
@@ -50,9 +46,9 @@ export default function WalkStats({ stats, isPaused }: WalkStatsProps) {
       </div>
       <div className="w-px bg-navy-8 self-stretch" />
       <div className="flex-1 flex flex-col items-center gap-1">
-        <span className={`text-f11 ${labelClass}`}>평균 속도</span>
+        <span className={`text-f11 ${labelClass}`}>페이스</span>
         <span className={`text-f18 font-light ${valueClass} tabular-nums`}>
-          {stats ? formatSpeed(stats.averageSpeedKmh) : '—'}
+          {stats ? formatPace(stats.durationSeconds, stats.distanceMeters) : '—'}
         </span>
       </div>
       <div className="w-px bg-navy-8 self-stretch" />

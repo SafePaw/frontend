@@ -132,7 +132,7 @@ export async function transferLeader(
 
 export async function getCrewMembers(crewId: number): Promise<CrewMember[]> {
   const res = await apiClient.get<ApiResponse<CrewMember[]>>(`/crews/${crewId}/members`)
-  if (!res.data.success || !res.data.data) {
+  if (!res.data.success || !Array.isArray(res.data.data)) {
     throw Object.assign(new Error(res.data.error?.message ?? '멤버 목록 조회에 실패했습니다.'), {
       code: res.data.error?.code,
     })

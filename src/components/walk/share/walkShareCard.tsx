@@ -1,3 +1,4 @@
+import { getTerritoryMarker } from '../../../utils/territoryMarker'
 import { useMemo, type RefObject } from 'react'
 import type { WalkShareData } from '../../../types/walk'
 import { buildShareGeometry } from '../../../utils/walkShareGeometry'
@@ -23,17 +24,21 @@ export default function WalkShareCard({
   markerClipId,
 }: Props) {
   const geometry = useMemo(
-    () => buildShareGeometry(data.route, data.territory?.polygon ?? null),
+    () =>
+      buildShareGeometry(
+        data.route,
+        data.territory?.polygon ?? null,
+        data.territory ? getTerritoryMarker(data.territory) : null,
+      ),
     [data.route, data.territory],
   )
 
   return (
     <div
       ref={cardRef}
-      className="relative w-full overflow-hidden rounded-xl"
+      className="relative w-full overflow-hidden rounded-xl bg-cream"
       style={{ aspectRatio: '4 / 5' }}
     >
-      {/* Background layer */}
       <div className="absolute inset-0">
         <img
           src={bgObjectUrl ?? shareCardBG}

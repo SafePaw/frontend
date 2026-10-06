@@ -19,6 +19,7 @@ export interface CrewMember {
   joinedAt: string
   dogCount: number
   activeAreaSquareMeters: number
+  contributionPercent: number
 }
 
 export interface CrewCreateRequest {
@@ -52,6 +53,7 @@ export interface CrewImageUploadResponse {
 }
 
 export type ConfirmAction =
+  | { type: 'rotateInviteCode' }
   | { type: 'leave' }
   | { type: 'disband' }
   | { type: 'kick'; member: CrewMember }

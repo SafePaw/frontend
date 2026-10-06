@@ -11,6 +11,12 @@ interface Props {
 export default function CrewConfirmSheet({ action, isMutating, onConfirm, onCancel }: Props) {
   const prefersReducedMotion = useReducedMotion()
   const config = {
+    rotateInviteCode: {
+      title: '초대 코드를 재발급할까요?',
+      desc: '기존 초대 코드는 더 이상 사용할 수 없습니다.',
+      confirmLabel: '재발급하기',
+      isDanger: false,
+    },
     leave: {
       title: '크루를 탈퇴할까요?',
       desc: '탈퇴하면 크루 멤버 자격이 사라집니다.',
@@ -25,7 +31,7 @@ export default function CrewConfirmSheet({ action, isMutating, onConfirm, onCanc
     },
     kick: {
       title: `${(action as { type: 'kick'; member: CrewMember }).member?.nickname}님을 강퇴할까요?`,
-      desc: '강퇴된 멤버는 크루에서 제거됩니다.',
+      desc: '강퇴된 멤버는 크루에서 제거되고 초대 코드도 자동으로 변경됩니다.',
       confirmLabel: '강퇴하기',
       isDanger: true,
     },
@@ -42,16 +48,21 @@ export default function CrewConfirmSheet({ action, isMutating, onConfirm, onCanc
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/40"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      onClick={(e) => { if (e.target === e.currentTarget && !isMutating) onCancel() }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isMutating) onCancel()
+      }}
     >
       <motion.div
-        className="w-full max-w-md bg-cream rounded-t-2xl px-6 pt-6 pb-10"
+        role="dialog"
+        aria-modal="true"
+        aria-label={config.title}
+        className="w-full max-w-[430px] max-h-[85dvh] overflow-y-auto bg-cream rounded-t-2xl px-6 pt-6 pb-10"
         initial={prefersReducedMotion ? false : { y: '100%' }}
         animate={{ y: 0 }}
         transition={{ duration: 0.28, ease: [0.32, 0.72, 0, 1] }}
       >
         <div className="w-10 h-1 rounded-full bg-navy-15 mx-auto mb-4" />
-        <p className="text-f20 font-semibold text-navy mb-1">{config.title}</p>
+        <p className="text-f20 font-semibold text-navy mb-1 break-words">{config.title}</p>
         <p className="text-f14 text-navy-70 mb-6">{config.desc}</p>
         <div className="flex flex-col gap-3">
           <button

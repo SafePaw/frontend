@@ -1,9 +1,10 @@
+import { hasValidCoords } from '../../utils/territoryGeoJson'
 import { useEffect, useRef, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import { MAPBOX_STYLE_URL } from '../../constants/walk'
 import { CREW_TERRITORY_MAP_IDS, TERRITORY_MAP_CONFIG } from '../../constants/territory'
-import { computeGeometryCentroid } from '../../utils/territoryGeoJson'
-import { DEFAULT_MARKER_IMAGE_SRC, resolveMarkerImage } from '../../utils/markerImage'
+import { getTerritoryMarker } from '../../utils/territoryMarker'
+import { createTerritoryMarkerElement } from '../../utils/territoryMarkerElement'
 import type { TerritoryBoundsParams } from '../../types/territory'
 import type { CrewTerritoryItem } from '../../types/crewTerritory'
 
@@ -11,17 +12,6 @@ interface CrewTerritoryFeatureProperties {
   territoryId: number
   fillColor: string
   isMine: boolean
-}
-
-function hasValidCoords(polygon: CrewTerritoryItem['polygon']): boolean {
-  if (polygon.type === 'Polygon') {
-    return polygon.coordinates.length > 0 && (polygon.coordinates[0]?.length ?? 0) > 0
-  }
-  return (
-    polygon.coordinates.length > 0 &&
-    (polygon.coordinates[0]?.length ?? 0) > 0 &&
-    (polygon.coordinates[0]?.[0]?.length ?? 0) > 0
-  )
 }
 
 function toCrewTerritoryFeatureCollection(items: CrewTerritoryItem[]) {
@@ -47,12 +37,14 @@ const EMPTY_COLLECTION = {
 }
 
 interface CrewTerritoryMapProps {
+  crewId: number | null
   territories: CrewTerritoryItem[]
   onBoundsChange: (bounds: TerritoryBoundsParams) => void
   fitBoundsTarget?: [[number, number], [number, number]] | null
 }
 
 export default function CrewTerritoryMap({
+  crewId,
   territories,
   onBoundsChange,
   fitBoundsTarget,
@@ -62,8 +54,8 @@ export default function CrewTerritoryMap({
   const mountedRef = useRef(true)
   const onBoundsRef = useRef(onBoundsChange)
   const dogMarkersRef = useRef<mapboxgl.Marker[]>([])
-  const hasFittedBoundsRef = useRef(false)
-  const [mapReady, setMapReady] = useState(false)
+  const fittedCrewRef = useRef<number | null>(null)
+  const [mapReady, setMapReady] = useState(0)
   const [mapError, setMapError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -97,35 +89,38 @@ export default function CrewTerritoryMap({
       const m = mapRef.current
       if (!m) return
 
-      m.addSource(CREW_TERRITORY_MAP_IDS.source, {
-        type: 'geojson',
-        data: EMPTY_COLLECTION,
-      })
+      if (!m.getSource(CREW_TERRITORY_MAP_IDS.source))
+        m.addSource(CREW_TERRITORY_MAP_IDS.source, {
+          type: 'geojson',
+          data: EMPTY_COLLECTION,
+        })
 
-      m.addLayer({
-        id: CREW_TERRITORY_MAP_IDS.fillLayer,
-        type: 'fill',
-        source: CREW_TERRITORY_MAP_IDS.source,
-        paint: {
-          'fill-color': ['get', 'fillColor'],
-          'fill-opacity': [
-            'case',
-            ['==', ['get', 'isMine'], true],
-            TERRITORY_MAP_CONFIG.fillOpacityMine,
-            TERRITORY_MAP_CONFIG.fillOpacityOther,
-          ],
-        },
-      })
+      if (!m.getLayer(CREW_TERRITORY_MAP_IDS.fillLayer))
+        m.addLayer({
+          id: CREW_TERRITORY_MAP_IDS.fillLayer,
+          type: 'fill',
+          source: CREW_TERRITORY_MAP_IDS.source,
+          paint: {
+            'fill-color': ['get', 'fillColor'],
+            'fill-opacity': [
+              'case',
+              ['==', ['get', 'isMine'], true],
+              TERRITORY_MAP_CONFIG.fillOpacityMine,
+              TERRITORY_MAP_CONFIG.fillOpacityOther,
+            ],
+          },
+        })
 
-      m.addLayer({
-        id: CREW_TERRITORY_MAP_IDS.outlineLayer,
-        type: 'line',
-        source: CREW_TERRITORY_MAP_IDS.source,
-        paint: {
-          'line-color': ['get', 'fillColor'],
-          'line-width': TERRITORY_MAP_CONFIG.lineWidthDefault,
-        },
-      })
+      if (!m.getLayer(CREW_TERRITORY_MAP_IDS.outlineLayer))
+        m.addLayer({
+          id: CREW_TERRITORY_MAP_IDS.outlineLayer,
+          type: 'line',
+          source: CREW_TERRITORY_MAP_IDS.source,
+          paint: {
+            'line-color': ['get', 'fillColor'],
+            'line-width': TERRITORY_MAP_CONFIG.lineWidthDefault,
+          },
+        })
 
       const initialBounds = m.getBounds()
       if (initialBounds) {
@@ -137,7 +132,7 @@ export default function CrewTerritoryMap({
         })
       }
 
-      if (mountedRef.current) setMapReady(true)
+      if (mountedRef.current) setMapReady((version) => version + 1)
     }
 
     function handleMoveEnd() {
@@ -163,42 +158,46 @@ export default function CrewTerritoryMap({
     })
     if (containerRef.current) resizeObserver.observe(containerRef.current)
 
-    map.on('load', handleLoad)
+    map.on('style.load', handleLoad)
     map.on('error', handleError)
     map.on('moveend', handleMoveEnd)
 
     return () => {
       mountedRef.current = false
-      map.off('load', handleLoad)
+      map.off('style.load', handleLoad)
       map.off('error', handleError)
       map.off('moveend', handleMoveEnd)
       resizeObserver.disconnect()
       dogMarkersRef.current.forEach((m) => m.remove())
       dogMarkersRef.current = []
-      setMapReady(false)
+      setMapReady(0)
       map.remove()
       mapRef.current = null
     }
   }, [])
 
   useEffect(() => {
-    if (!mapReady || !fitBoundsTarget || hasFittedBoundsRef.current) return
+    fittedCrewRef.current = null
+  }, [crewId])
+
+  useEffect(() => {
+    if (!mapReady || !fitBoundsTarget || crewId === null || fittedCrewRef.current === crewId) return
     const map = mapRef.current
     if (!map) return
     const [[minLng, minLat], [maxLng, maxLat]] = fitBoundsTarget
+    fittedCrewRef.current = crewId
     map.fitBounds(
       [
         [minLng, minLat],
         [maxLng, maxLat],
       ],
       {
-        padding: TERRITORY_MAP_CONFIG.fitBoundsPadding,
+        padding: { top: 120, bottom: 160, left: 40, right: 40 },
         maxZoom: TERRITORY_MAP_CONFIG.maxZoomOnFit,
         duration: 500,
       },
     )
-    hasFittedBoundsRef.current = true
-  }, [mapReady, fitBoundsTarget])
+  }, [mapReady, fitBoundsTarget, crewId])
 
   useEffect(() => {
     if (!mapReady) return
@@ -220,30 +219,13 @@ export default function CrewTerritoryMap({
     dogMarkersRef.current.forEach((m) => m.remove())
     dogMarkersRef.current = []
 
-    const seenDogIds = new Set<number>()
-
     for (const item of territories) {
       if (!item.polygon) continue
-      if (seenDogIds.has(item.dog.id)) continue
-      seenDogIds.add(item.dog.id)
 
-      const centroid = computeGeometryCentroid(item.polygon)
+      const centroid = getTerritoryMarker(item)
+      if (!centroid) continue
 
-      const el = document.createElement('div')
-      el.style.cssText = `width:36px;height:36px;border-radius:50%;border:2.5px solid ${item.dog.territoryColor};overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,0.25);flex-shrink:0;`
-      const img = document.createElement('img')
-      img.src = resolveMarkerImage({
-        markerImageType: item.dog.markerImageType,
-        markerImageValue: item.dog.markerImageValue,
-        markerImageUrl: item.dog.markerImageUrl,
-      })
-      img.alt = item.dog.name
-      const objectFit = item.dog.markerImageType === 'UPLOADED' ? 'cover' : 'contain'
-      img.style.cssText = `width:100%;height:100%;object-fit:${objectFit};`
-      img.onerror = () => {
-        img.src = DEFAULT_MARKER_IMAGE_SRC
-      }
-      el.appendChild(img)
+      const el = createTerritoryMarkerElement(item.dog)
 
       const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
         .setLngLat(centroid)

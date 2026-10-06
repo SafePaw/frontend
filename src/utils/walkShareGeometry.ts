@@ -1,5 +1,5 @@
 import type { TerritoryPolygon } from '../types/territory'
-import { computePolygonBounds, computeGeometryCentroid } from './territoryGeoJson'
+import { computePolygonBounds } from './territoryGeoJson'
 
 const VIEW_SIZE = 320
 const PADDING = 32
@@ -98,6 +98,7 @@ export interface WalkShareGeometry {
 export function buildShareGeometry(
   route: [number, number][] | null,
   territory: TerritoryPolygon | null,
+  marker: [number, number] | null = null,
 ): WalkShareGeometry {
   const bounds = buildBounds(route, territory)
   if (!bounds) {
@@ -130,8 +131,7 @@ export function buildShareGeometry(
       }
     }
 
-    const [centLng, centLat] = computeGeometryCentroid(territory)
-    centroidPoint = project(centLng, centLat, ctx)
+    if (marker) centroidPoint = project(marker[0], marker[1], ctx)
   }
 
   return { viewSize: VIEW_SIZE, routePathD, territoryPathDs, centroidPoint }

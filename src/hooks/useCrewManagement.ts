@@ -68,6 +68,7 @@ export function useCrewManagement() {
 
   function applyNewCrew(newCrew: CrewResponse) {
     setCrew(newCrew)
+    setMembers([])
     getCrewMembers(newCrew.id)
       .then(setMembers)
       .catch(() => setMembers([]))
@@ -95,8 +96,8 @@ export function useCrewManagement() {
     }
   }
 
-  async function leave() {
-    if (!crew || isMutating) return
+  async function leave(): Promise<boolean> {
+    if (!crew || isMutating) return false
     setIsMutating(true)
     setMutateError(null)
     try {
@@ -104,16 +105,18 @@ export function useCrewManagement() {
       setCrew(null)
       setMembers([])
       setPageState('notJoined')
+      return true
     } catch (err) {
       const code = extractErrorCode(err)
       setMutateError(CREW_ERROR_MESSAGES[code] ?? '요청에 실패했습니다. 다시 시도해주세요.')
+      return false
     } finally {
       setIsMutating(false)
     }
   }
 
-  async function disband() {
-    if (!crew || isMutating) return
+  async function disband(): Promise<boolean> {
+    if (!crew || isMutating) return false
     setIsMutating(true)
     setMutateError(null)
     try {
@@ -121,9 +124,11 @@ export function useCrewManagement() {
       setCrew(null)
       setMembers([])
       setPageState('notJoined')
+      return true
     } catch (err) {
       const code = extractErrorCode(err)
       setMutateError(CREW_ERROR_MESSAGES[code] ?? '요청에 실패했습니다. 다시 시도해주세요.')
+      return false
     } finally {
       setIsMutating(false)
     }
@@ -149,7 +154,14 @@ export function useCrewManagement() {
     setIsMutating(true)
     setMutateError(null)
     try {
-      await transferLeader(crew.id, { targetUserId: member.userId })
+      const updated = await transferLeader(crew.id, { targetUserId: member.userId })
+      setCrew(updated)
+      setMembers((current) =>
+        current.map((item) => ({
+          ...item,
+          role: item.userId === member.userId ? 'LEADER' : 'MEMBER',
+        })),
+      )
       await refreshCrew()
     } catch (err) {
       const code = extractErrorCode(err)

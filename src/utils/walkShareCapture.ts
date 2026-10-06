@@ -16,7 +16,10 @@ export async function captureWalkShareCard(node: HTMLElement): Promise<Blob> {
         await img.decode()
       }),
   )
-  const blob = await toBlob(node, { pixelRatio: 2 })
+  const blob = await toBlob(node, {
+    pixelRatio: 2,
+    backgroundColor: getComputedStyle(node).backgroundColor,
+  })
   if (!blob) throw new Error('이미지를 만들지 못했습니다. 다른 사진으로 다시 시도해 주세요.')
   return blob
 }
